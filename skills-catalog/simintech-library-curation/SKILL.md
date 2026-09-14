@@ -15,7 +15,7 @@ description: Use when block property names need to be known, verified, or added 
 - `GetPropHandle(BlockId, PropName)` — handle
 
 Всем трём имя свойства нужно **знать заранее**. Поэтому имена хранятся в
-каталоге: `simintech_api/data/block_catalog.json`.
+каталоге: `https://github.com/producedbysavant/simintech-code/blob/main/simintech_api/data/block_catalog.json`.
 
 ## Почему нельзя писать каталог вручную
 
@@ -34,12 +34,12 @@ description: Use when block property names need to be known, verified, or added 
 ```bash
 # требуется Windows и зарегистрированный COM-сервер
 mmain.exe /regserver
-python scripts/generate_block_catalog.py
+simintech-generate-catalog
 ```
 
 Скрипт создаёт по одному блоку каждого класса из `SUPPORTED_COM_BLOCK_CLASSES`,
 экспортирует проект в `.xprt` и разбирает секцию **`<custom_props>`** каждого
-объекта. Перезаписывает `simintech_api/data/block_catalog.json`.
+объекта. Перезаписывает `https://github.com/producedbysavant/simintech-code/blob/main/simintech_api/data/block_catalog.json`.
 
 Два места, где легко ошибиться (обе ошибки уже были допущены):
 
@@ -82,7 +82,7 @@ print(cat.classes())
 
 ## Ловушка: посторонняя документация
 
-`docs/simintech-language/blocks/` содержит таблицы параметров блоков с
+`https://github.com/producedbysavant/simintech-code/blob/main/blocks/` содержит таблицы параметров блоков с
 **читаемыми** именами: `value`, `signs`, `numInputs`, `num`, `den`, `reset`.
 Реальные имена — короткие: `y0`, `a`, `xn`, `k`, `yk`. Они **не совпадают**.
 

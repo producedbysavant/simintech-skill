@@ -11,11 +11,11 @@ requires:
     - set_block_param
     - layout_place
   data:
-    - simintech_api/data/block_catalog.json
+    - https://github.com/producedbysavant/simintech-code/blob/main/simintech_api/data/block_catalog.json
 source_of_truth:
-  - simintech_api/data/block_catalog.json
-  - scripts/generate_block_catalog.py
-  - sitECRT/doc/reference/com_api_inventory.md
+  - https://github.com/producedbysavant/simintech-code/blob/main/simintech_api/data/block_catalog.json
+  - https://github.com/producedbysavant/simintech-code/blob/main/simintech_api/catalog_tool.py
+  - https://github.com/producedbysavant/simintech-code/blob/main/docs/reference/com_api_inventory.md
 verified: true
 verified_note: >
   Имена параметров сгенерированы из реального SimInTech (SimInTech64,

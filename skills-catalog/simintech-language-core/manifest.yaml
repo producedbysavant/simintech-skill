@@ -3,11 +3,11 @@ version: 0.1.0
 description: Встроенный язык SimInTech — синтаксис, типы, ограничения.
 requires:
   data:
-    - docs/simintech-language/
+    - https://github.com/producedbysavant/simintech-code/blob/main/
 source_of_truth:
-  - docs/simintech-language/language/syntax.md
-  - docs/simintech-language/language/pitfalls.md
-  - simintech_api/constants.py
+  - https://github.com/producedbysavant/simintech-code/blob/main/language/syntax.md
+  - https://github.com/producedbysavant/simintech-code/blob/main/language/pitfalls.md
+  - https://github.com/producedbysavant/simintech-code/blob/main/simintech_api/constants.py
 related_skills:
   - simintech-inc-quoting
 verified: true

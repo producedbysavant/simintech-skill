@@ -35,6 +35,6 @@
 `docs/reference/com_api_inventory.md` и `REPORT.md`.
 
 **Чего в скиллах нет намеренно:** имён свойств из
-`docs/simintech-language/blocks/`. Там используются читаемые имена
+`https://github.com/producedbysavant/simintech-code/blob/main/blocks/`. Там используются читаемые имена
 (`value`, `signs`, `numInputs`), которые с реальными (`y0`, `a`, `xn`)
 **не совпадают**. Опираться на них нельзя — см. `simintech-library-curation/`.

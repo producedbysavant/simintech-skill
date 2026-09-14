@@ -12,8 +12,8 @@ requires:
     - list_signals
   platform: Windows
 source_of_truth:
-  - simintech_api/core/simulation.py
-  - simintech_api/utils/xprt_signals.py
+  - https://github.com/producedbysavant/simintech-code/blob/main/simintech_api/core/simulation.py
+  - https://github.com/producedbysavant/simintech-code/blob/main/simintech_api/utils/xprt_signals.py
   - REPORT.md
 verified: partial
 verified_note: >

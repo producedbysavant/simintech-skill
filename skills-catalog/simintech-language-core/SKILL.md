@@ -5,7 +5,7 @@ description: Use when writing SimInTech built-in language code (the "Язык п
 
 # Встроенный язык SimInTech
 
-Справочник целиком: `docs/simintech-language/` (`language/`, `blocks/`,
+Справочник целиком: `https://github.com/producedbysavant/simintech-code/blob/main/` (`language/`, `blocks/`,
 `patterns/`, `tutorials/`). Здесь — то, что чаще всего ломает работу агента.
 
 **Официальная справка:**
@@ -22,7 +22,7 @@ description: Use when writing SimInTech built-in language code (the "Язык п
 - «Порт выхода»
 - «Флаг входа в состояние»
 
-См. `simintech_api/constants.py:UNSUPPORTED_COM_BLOCK_CLASSES`.
+См. `https://github.com/producedbysavant/simintech-code/blob/main/simintech_api/constants.py:UNSUPPORTED_COM_BLOCK_CLASSES`.
 
 ## Синтаксис — Pascal, не C
 

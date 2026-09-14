@@ -38,11 +38,11 @@ layout_place(block_ids="A,B,C", connections="A->B,B->C")
 `numInputs`, `reset`. Обратите внимание: у «Константы» параметр — **`a`**, а
 не `y0`; у «Сумматора» **нет** `xn`.
 
-Документация `docs/simintech-language/blocks/` использует читаемые имена —
+Документация `https://github.com/producedbysavant/simintech-code/blob/main/blocks/` использует читаемые имена —
 они не совпадают с реальными, опираться на неё нельзя.
 
 Проверить доступные имена: `get_block_params("имя_блока")`. Он читает имена
-из каталога блоков (`simintech_api/data/block_catalog.json`).
+из каталога блоков (`https://github.com/producedbysavant/simintech-code/blob/main/simintech_api/data/block_catalog.json`).
 
 Состав и назначение блоков — [Библиотеки блоков](https://help.simintech.ru/10_biblioteki_blokov/KEY_biblioteki_blokov.html)
 в официальной справке.
