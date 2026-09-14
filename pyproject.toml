@@ -1,0 +1,20 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "simintech-skill"
+version = "0.2.0"
+description = "Скиллы (доменные знания) для работы ИИ-агента с SimInTech"
+readme = "README.md"
+requires-python = ">=3.11"
+license = { text = "MIT" }
+authors = [{ name = "EVS360" }]
+# Установочных зависимостей нет: скиллы — это markdown и yaml.
+dependencies = []
+
+[project.optional-dependencies]
+test = ["pytest>=7.0"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
