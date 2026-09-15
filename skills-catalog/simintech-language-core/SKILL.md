@@ -22,7 +22,9 @@ description: Use when writing SimInTech built-in language code (the "Язык п
 - «Порт выхода»
 - «Флаг входа в состояние»
 
-См. `https://github.com/producedbysavant/simintech-code/blob/main/simintech_api/constants.py:UNSUPPORTED_COM_BLOCK_CLASSES`.
+См. набор `UNSUPPORTED_COM_BLOCK_CLASSES` в
+[`simintech_api/constants.py`, строка 68](https://github.com/producedbysavant/simintech-code/blob/main/simintech_api/constants.py#L68).
+Синтаксис `файл.py:ИМЯ` якоря на символ в GitHub не работает — ссылка даёт 404.
 
 ## Синтаксис — Pascal, не C
 

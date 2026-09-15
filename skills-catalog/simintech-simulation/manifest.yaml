@@ -14,8 +14,11 @@ requires:
 source_of_truth:
   - https://github.com/producedbysavant/simintech-code/blob/main/simintech_api/core/simulation.py
   - https://github.com/producedbysavant/simintech-code/blob/main/simintech_api/utils/xprt_signals.py
-  - REPORT.md
+  - https://github.com/producedbysavant/simintech-code/blob/main/REPORT.md
 verified: partial
 verified_note: >
-  Поведение GetProjectSignalList подтверждено в REPORT.md на реальном COM.
-  Отсутствие выгрузки массивов и семантика Simulation.run() — по коду.
+  Поведение GetProjectSignalList подтверждено в REPORT.md (лежит в
+  simintech-code) на реальном COM. Отсутствие выгрузки массивов и семантика
+  Simulation.run() — по коду. Модельное время через COM не двигалось ни одним
+  из методов (ProjectRun/RunTo/ProjectStep) на проектах без настроенного
+  расчёта — см. заметку в simintech-mcp/docs/roadmap-agentic-ecosystem.md.
