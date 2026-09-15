@@ -34,19 +34,27 @@ description: Use when running a SimInTech model and getting its results — crea
 
 ```
 create_project(end_time=1.0)
-add_block("Константа", props="a=2")                    # → k_0
-add_block("Усилитель", props="a=3")                    # → kx_0
-add_block("В файл", props="filename=C:\\Temp\\out.txt,count=1,step=[0.2]")
+add_block("Константа", props="a=2")                     # → k_0
+add_block("Усилитель", props="a=3")                     # → kx_0
+add_block("В файл", props="filename=<каталог результатов>\\out.txt,count=1,step=[0.2]")
 connect("k_0", "kx_0")
-connect("kx_0", "ToFile_0")                            # автоимя блока
+connect("kx_0", "ToFile_0")                             # автоимя блока
 run(to_time=1.0)
-read_output_file("C:\\Temp\\out.txt")                  # 0…1, значение 6 (2×3)
+read_output_file("out.txt")                             # 0…1, значение 6 (2×3)
 ```
 
-Свойства блока «В файл»: `filename` (по умолчанию `file.dat`), `count` (сколько
-функций писать — равно числу входов), `step` (массив шага записи, по умолчанию
-`[1]`), `fform`, `strendformat`, `divstyle`. Блок пишет числа: массивы и
-структуры выгрузить нельзя.
+**Файл обязан лежать в каталоге результатов.** `read_output_file` читает
+**только** его — это стандартное ограничение, а не опция. По умолчанию каталог
+— `<временный каталог>/simintech-output`, переопределяется переменной
+`SIMINTECH_OUTPUT_DIR`; точный путь печатает `help_text`, а также сам отказ при
+попытке чтения снаружи. Относительный путь (`"out.txt"`) ищется внутри этого
+каталога, поэтому в ответах блока и в `read_output_file` удобно использовать
+одно и то же имя.
+
+Свойства блока «В файл»: `filename`, `count` (сколько функций писать — равно
+числу входов), `step` (массив шага записи, по умолчанию `[1]`), `fform`,
+`strendformat`, `divstyle`. Блок пишет числа: массивы и структуры выгрузить
+нельзя.
 
 ## `get_signal` требует базы сигналов проекта
 
