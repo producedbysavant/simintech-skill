@@ -29,7 +29,7 @@ Runtime-зависимостей нет: скиллы — это markdown и yam
 
 ```bash
 pip install -e ".[test]"               # pytest + pyyaml
-python3.11 -m pytest tests/unit -q     # 35 тестов: структура, манифесты, ссылки
+python3.11 -m pytest tests/unit -q     # 69 тестов: структура, манифесты, ссылки
 ```
 
 Тесты проверяют не только структуру, но и ссылки: что артефакты simintech-code

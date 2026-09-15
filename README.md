@@ -48,7 +48,7 @@
 
 ```bash
 pip install -e ".[test]"
-python3.11 -m pytest tests/unit -q      # 35 тестов
+python3.11 -m pytest tests/unit -q      # 69 тестов
 ```
 
 Тесты проверяют структуру каталога, frontmatter и манифесты, а также что
