@@ -8,29 +8,29 @@ description: Use when building or editing a SimInTech model through the MCP serv
 ## Порядок работы
 
 ```
-create_project(end_time=N) → add_block → connect → get_block_params
-  → set_block_param → run(to_time=N) → read_output_file
+create_project(end_time=N) → add_block → connect → layout_place
+  → get_block_params → set_block_param → run(to_time=N) → read_output_file
 ```
 
 `create_project` создаёт проект **из шаблона** («Схема модели общего вида») —
-только такой проект считает. Пустой проект (`NewProject`) не считает вообще: у
-него нет расчётного слоя, и модельное время не растёт ни через `run`, ни через
-`step`, хотя вызовы возвращают успех. `end_time` (или `set_calc_time`) задаёт
-конечное время расчёта — по умолчанию из шаблона 10 с.
+только такой проект считает. `end_time` (или `set_calc_time`) задаёт конечное
+время расчёта; по умолчанию — из шаблона, 10 с. Почему пустой проект не
+считает — §18 карты API
+([com_api_inventory.md](https://github.com/producedbysavant/simintech-code/blob/main/docs/reference/com_api_inventory.md)).
 
 Результат удобнее всего снимать блоком «В файл» и читать `read_output_file`
-(см. скилл `simintech-simulation`): `get_signal` требует проекта с подключённой
-базой сигналов.
+(см. скилл `simintech-simulation`).
 
 **Соединяйте все входы.** Блок с неподключённым входом молча останавливает
 расчёт всей модели: `get_time()` остаётся `0.0`, ошибки нет. Это первое, что
 надо проверить, если «расчёт не идёт».
 
-`layout_place` **только считает координаты** и возвращает их текстом — блоки он
-не двигает. Позиция задаётся при создании блока (`add_block(x=, y=)`):
+`layout_place` считает координаты `LayeredPlacer` **и применяет их** к блокам.
+Принимает имена или id; обе стороны каждой связи должны быть в `block_ids`,
+иначе инструмент отказывает (а не «расставляет» несуществующие блоки):
 
 ```
-layout_place(block_ids="A,B,C", connections="A->B,B->C")
+layout_place(block_ids="k_0,kx_0,ToFile_0", connections="k_0->kx_0,kx_0->ToFile_0")
 ```
 
 ## Имена свойств — короткие
@@ -56,7 +56,7 @@ layout_place(block_ids="A,B,C", connections="A->B,B->C")
 Документация `https://github.com/producedbysavant/simintech-code/blob/main/blocks/` использует читаемые имена —
 они не совпадают с реальными, опираться на неё нельзя.
 
-Проверить доступные имена: `get_block_params("имя_блока")`. Он читает имена
+Проверить доступные имена: `get_block_params(block="k_0")`. Он читает имена
 из каталога блоков (`https://github.com/producedbysavant/simintech-code/blob/main/simintech_api/data/block_catalog.json`).
 
 Состав и назначение блоков — [Библиотеки блоков](https://help.simintech.ru/10_biblioteki_blokov/KEY_biblioteki_blokov.html)
@@ -67,9 +67,14 @@ layout_place(block_ids="A,B,C", connections="A->B,B->C")
 `add_block` и `set_block_param` принимают `props` / `value` строкой:
 
 ```
-add_block "Константа" name="Set" props="a=5"
-add_block "Сумматор" name="Err" props="a=[1, -1]"
+add_block "Константа" props="a=5"
+add_block "Сумматор" props="a=[1, -1]"
 ```
+
+Параметр `name_hint` имени **не применит**: COM не переименовывает блоки, имя
+остаётся автоматическим (`k_0`, `kx_0`). Ответ инструмента всегда сообщает
+фактическое имя — используйте его в `connect`, `get_block_params`,
+`layout_place`.
 
 - скаляры: `a=2`, `y0=5`, `k=1.5`
 - массивы: в стиле SimInTech — `a=[1, -1]`
@@ -77,19 +82,23 @@ add_block "Сумматор" name="Err" props="a=[1, -1]"
 
 ## Классы, которые НЕ создаются через COM
 
-`constants.UNSUPPORTED_COM_BLOCK_CLASSES`: **«Из памяти»**, **«Порт выхода»**,
-**«Флаг входа в состояние»**. `CreateBlock` для них не работает — нужен
-встроенный язык SimInTech (см. скилл `simintech-language-core`).
+`constants.UNSUPPORTED_COM_BLOCK_CLASSES` (5): **«Из памяти»**,
+**«Порт выхода»**, **«Флаг входа в состояние»**, **«Выход данных состояния»**,
+**«Состояние автомата»**. `CreateBlock` для них не работает — нужен встроенный
+язык SimInTech (см. скилл `simintech-language-core`).
 
-Проверенно создаваемые классы (`SUPPORTED_COM_BLOCK_CLASSES`, 14 шт.) включают
+Проверенно создаваемые классы (`SUPPORTED_COM_BLOCK_CLASSES`, 13):
 «Константа», «Усилитель», «Сумматор», «Интегратор», «Производная»,
-«Ступенька», «Синусоида», «Временной график», «Порт входа», «Задержка на шаг
-интегрирования», «RS-триггер с приоритетом по установке», «Выход данных
-состояния», «Состояние автомата», «Сравнивающее устройство».
+«Ступенька», «Синусоида», «Временной график», «Сравнивающее устройство»,
+«Порт входа», «Задержка на шаг интегрирования», «RS-триггер с приоритетом по
+установке», «В файл».
+
+Список — в коде (`simintech_api/constants.py`), он же источник истины; здесь
+приведён для ориентира.
 
 ## Смена параметра существующего блока
 
-`set_block_param(имя, параметр, значение)` устанавливает свойство **и
+`set_block_param(block, param, value)` устанавливает свойство **и
 переинициализирует блок** (`InitBlock`). Переинициализация обязательна:
 карта COM API прямо отмечает, что `SetBlockProp` может не повлиять на расчёт,
 потому что блоки вроде «Константа» инициализируются до `ProjectStart`.
