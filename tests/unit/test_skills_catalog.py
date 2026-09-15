@@ -50,6 +50,19 @@ def test_catalog_readme_exists():
     assert (CATALOG / "README.md").is_file()
 
 
+def test_catalog_has_skills():
+    """В каталоге есть хотя бы один скилл.
+
+    Без этой проверки исчезновение всех каталогов-скиллов не роняло бы набор:
+    параметризованные тесты просто не порождались бы, и прогон оставался зелёным.
+    """
+    skills = _skill_dirs()
+    assert skills, f"в {CATALOG} нет ни одного каталога скилла"
+    for skill in skills:
+        assert (skill / "SKILL.md").is_file(), f"{skill.name}: нет SKILL.md"
+        assert (skill / "manifest.yaml").is_file(), f"{skill.name}: нет manifest.yaml"
+
+
 @pytest.mark.parametrize("skill", _skill_dirs(), ids=lambda p: p.name)
 def test_skill_has_required_files(skill):
     """В каждом скилле есть SKILL.md и manifest.yaml."""
@@ -125,6 +138,25 @@ def _all_skill_files():
     return files
 
 
+def _doc_id(path: pathlib.Path) -> str:
+    """Идентификатор для параметризации: у двух README.md имена совпадают."""
+    return f"{path.parent.name}/{path.name}"
+
+
+def _all_docs():
+    """Все документы, где операционные факты вообще встречаются."""
+    return _all_skill_files() + list(README_PATHS)
+
+
+def _artifact_is_linked(line: str, artifact: str) -> bool:
+    """Артефакт упомянут внутри URL на simintech-code, а не отдельным путём."""
+    for match in re.finditer(re.escape(artifact), line):
+        head = line[:match.start()]
+        if head.rstrip().endswith(("blob/main/", "tree/main/", "/")):
+            return True
+    return False
+
+
 def _referenced_code_paths(text: str):
     """Пути внутри simintech-code, на которые ссылаются файлы скиллов."""
     paths = []
@@ -136,12 +168,21 @@ def _referenced_code_paths(text: str):
 
 
 def _find_code_dir():
-    """Каталог checkout'а simintech-code, если он есть рядом с этим репозиторием."""
+    """Каталог checkout'а simintech-code, если он есть рядом с этим репозиторием.
+
+    `SIMINTECH_CODE_DIR` — явная настройка: если она задана и указывает не на
+    каталог, это ошибка конфигурации, а не повод молча пропустить проверку.
+    Без переменной и без соседнего checkout проверка существования путей
+    недоступна (репозитории разделены) — тогда тест скипается с причиной.
+    """
     env = os.environ.get("SIMINTECH_CODE_DIR")
-    candidates = [pathlib.Path(env)] if env else []
+    if env:
+        candidate = pathlib.Path(env)
+        if not candidate.is_dir():
+            pytest.fail(f"SIMINTECH_CODE_DIR={env!r} — не каталог")
+        return candidate
     for parent in ROOT.parents:
-        candidates.append(parent / "simintech-code")
-    for candidate in candidates:
+        candidate = parent / "simintech-code"
         if candidate.is_dir():
             return candidate
     return None
@@ -164,17 +205,30 @@ def test_no_stale_relative_paths(path):
         assert prefix not in text, f"{path.name}: устаревший путь {prefix!r}"
 
 
-@pytest.mark.parametrize("path", _all_skill_files(), ids=lambda p: f"{p.parent.name}/{p.name}")
+@pytest.mark.parametrize("path", _all_docs(), ids=_doc_id)
 def test_references_point_to_simintech_code(path):
-    """Упоминания артефактов simintech-code идут по URL, а не относительным путём."""
+    """Артефакт simintech-code упоминается **ссылкой на него**, а не путём.
+
+    Проверка построчная: требовалось лишь наличие любой ссылки на
+    simintech-code где-то в файле, поэтому относительный путь рядом с валидной
+    ссылкой на другой строке проходил незамеченным. Теперь у каждого упоминания
+    артефакта URL должен стоять в той же строке.
+
+    README каталога и корня проверяются наравне со скиллами: расхождение в них
+    уже случалось.
+    """
     text = path.read_text(encoding="utf-8")
 
     for artifact in CODE_ARTIFACTS:
-        if artifact not in text:
-            continue
-        assert CODE_URL in text, (
-            f"{path.name}: упомянут {artifact!r}, но ссылки на simintech-code нет"
-        )
+        for number, line in enumerate(text.splitlines(), start=1):
+            if artifact not in line:
+                continue
+            if CODE_URL in line or _artifact_is_linked(line, artifact):
+                continue
+            pytest.fail(
+                f"{_doc_id(path)}:{number}: {artifact!r} упомянут без ссылки на "
+                f"simintech-code в той же строке: {line.strip()!r}"
+            )
 
 
 @pytest.mark.parametrize("path", _all_skill_files(), ids=lambda p: f"{p.parent.name}/{p.name}")

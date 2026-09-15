@@ -41,16 +41,20 @@
 **Чего в скиллах нет намеренно:** имён свойств из
 [`blocks/`](https://github.com/producedbysavant/simintech-code/tree/main/blocks).
 Там используются читаемые имена
-(`value`, `signs`, `numInputs`), которые с реальными (`y0`, `a`, `xn`)
+(`value`, `signs`, `numInputs`), которые с реальными (`a`, `y0`, `k`)
 **не совпадают**. Опираться на них нельзя — см. `simintech-library-curation/`.
 
 ## Проверка
 
 ```bash
 pip install -e ".[test]"
-python3.11 -m pytest tests/unit -q      # 69 тестов
+python3.11 -m pytest tests/unit -q      # 72 теста
 ```
 
 Тесты проверяют структуру каталога, frontmatter и манифесты, а также что
-ссылки ведут на `simintech-code`, а не на пути старой раскладки. Без `pyyaml`
-проверки манифестов уходят в skip — он объявлен в extras `test`.
+ссылки ведут на `simintech-code`, а не на пути старой раскладки. `pyyaml`
+объявлен в extras `test` и импортируется на уровне модуля: без него набор
+падает, а не проходит вхолостую.
+
+Проверка, что пути внутри `simintech-code` реально существуют, требует его
+checkout рядом (или `SIMINTECH_CODE_DIR`); без него она пропускается с причиной.

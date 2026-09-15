@@ -26,5 +26,7 @@ verified_note: >
   "endtime", …) задаёт момент остановки; блок «В файл» пишет строки
   «<время> <значения…>», файл читается (Константа 2 → Усилитель 3 при
   endtime=1 даёт 6 строк со значением 6). Поведение GetProjectSignalList
-  подтверждено в REPORT.md на реальном COM; отсутствие выгрузки массивов —
+  подтверждено в
+  https://github.com/producedbysavant/simintech-code/blob/main/REPORT.md
+  на реальном COM; отсутствие выгрузки массивов —
   по коду. Почему NewProject не считает — §18 карты COM API.

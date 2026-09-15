@@ -23,7 +23,7 @@ description: Use when block property names need to be known, verified, or added 
 выдуманное имя не даёт ошибки: параметр «устанавливается», вызов успешен, а
 расчёт идёт по прежнему значению. **Отказ молчаливый.**
 
-Прямое подтверждение — карта COM API (`com_api_inventory.md`), раздел
+Прямое подтверждение — [карта COM API](https://github.com/producedbysavant/simintech-code/blob/main/docs/reference/com_api_inventory.md), раздел
 «Критические ограничения»: `SetBlockProp("a")` не влияет на симуляцию, если
 блок уже инициализирован.
 
@@ -63,11 +63,13 @@ python -m pytest tests/unit/test_catalog.py -v
 
 Сгенерирован из реального SimInTech (`meta.source == "generated"`, SimInTech64,
 2026-09-10): 12 классов. Не создались «Выход данных состояния» и «Состояние
-автомата» — они значатся в `SUPPORTED_COM_BLOCK_CLASSES`, но `CreateBlock` их
-не создаёт.
+автомата» — `CreateBlock` их не создаёт, и они перенесены в
+`UNSUPPORTED_COM_BLOCK_CLASSES` (см.
+[`simintech_api/constants.py`](https://github.com/producedbysavant/simintech-code/blob/main/simintech_api/constants.py)).
 
 **Не копируйте имена из примеров.** Первая версия каталога была засеяна вручную
-по `examples/` — и оказалась неверной: там ставили `y0` «Константе» (реальный
+по [`examples/`](https://github.com/producedbysavant/simintech-code/tree/main/examples)
+— и оказалась неверной: там ставили `y0` «Константе» (реальный
 параметр `a`) и `xn` «Сумматору» (параметра нет). Ошибка была молчаливой:
 модель строилась с дефолтной константой вместо заданной.
 
@@ -84,7 +86,9 @@ print(cat.classes())
 
 `https://github.com/producedbysavant/simintech-code/blob/main/blocks/` содержит таблицы параметров блоков с
 **читаемыми** именами: `value`, `signs`, `numInputs`, `num`, `den`, `reset`.
-Реальные имена — короткие: `y0`, `a`, `xn`, `k`, `yk`. Они **не совпадают**.
+Реальные имена — короткие: `a`, `y0`, `k`, `yk`, и они **не совпадают** с
+читаемыми. (`xn` нет ни у одного класса каталога — это как раз пример
+выдуманного имени.)
 
 Эта документация писалась из общих знаний теории управления, а не из
 фактических имён свойств SimInTech. **Не используйте её как источник имён.**
