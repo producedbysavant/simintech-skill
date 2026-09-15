@@ -20,5 +20,6 @@ verified: true
 verified_note: >
   Имена параметров сгенерированы из реального SimInTech (SimInTech64,
   2026-09-10) и проверены записью с последующим чтением .xprt. Имена из
-  examples/ оказались частично неверными (y0 у «Константы», xn у «Сумматора»)
+  https://github.com/producedbysavant/simintech-code/tree/main/examples
+  оказались частично неверными (y0 у «Константы», xn у «Сумматора»)
   и были исправлены.

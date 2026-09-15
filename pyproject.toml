@@ -14,7 +14,19 @@ authors = [{ name = "EVS360" }]
 dependencies = []
 
 [project.optional-dependencies]
-test = ["pytest>=7.0"]
+test = [
+    "pytest>=7.0",
+    # tests/unit/test_skills_catalog.py разбирает manifest.yaml, а без PyYAML
+    # эти проверки уходят в skip (importorskip) — то есть проходят вхолостую.
+    "pyyaml>=6.0",
+]
+
+[tool.hatch.build.targets.wheel]
+# Python-пакета у проекта нет: скиллы — это markdown и yaml. Без этого блока
+# hatchling падает с "Unable to determine which files to ship inside the wheel"
+# (имени simintech_skill не соответствует ни один каталог), и `pip install -e`
+# не работает вовсе.
+only-include = ["skills-catalog"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
