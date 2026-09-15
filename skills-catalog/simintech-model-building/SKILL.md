@@ -8,11 +8,26 @@ description: Use when building or editing a SimInTech model through the MCP serv
 ## Порядок работы
 
 ```
-create_project → add_block → connect → get_block_params → set_block_param → run
+create_project(end_time=N) → add_block → connect → get_block_params
+  → set_block_param → run(to_time=N) → read_output_file
 ```
 
-После правки параметров полезен `layout_place` — он расставляет блоки без
-наложений:
+`create_project` создаёт проект **из шаблона** («Схема модели общего вида») —
+только такой проект считает. Пустой проект (`NewProject`) не считает вообще: у
+него нет расчётного слоя, и модельное время не растёт ни через `run`, ни через
+`step`, хотя вызовы возвращают успех. `end_time` (или `set_calc_time`) задаёт
+конечное время расчёта — по умолчанию из шаблона 10 с.
+
+Результат удобнее всего снимать блоком «В файл» и читать `read_output_file`
+(см. скилл `simintech-simulation`): `get_signal` требует проекта с подключённой
+базой сигналов.
+
+**Соединяйте все входы.** Блок с неподключённым входом молча останавливает
+расчёт всей модели: `get_time()` остаётся `0.0`, ошибки нет. Это первое, что
+надо проверить, если «расчёт не идёт».
+
+`layout_place` **только считает координаты** и возвращает их текстом — блоки он
+не двигает. Позиция задаётся при создании блока (`add_block(x=, y=)`):
 
 ```
 layout_place(block_ids="A,B,C", connections="A->B,B->C")

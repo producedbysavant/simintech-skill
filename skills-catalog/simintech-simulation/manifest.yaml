@@ -1,8 +1,10 @@
 name: simintech-simulation
 version: 0.1.0
-description: Запуск расчёта SimInTech и чтение сигналов по имени блока.
+description: Запуск расчёта SimInTech и получение результата в файл.
 requires:
   mcp_tools:
+    - create_project
+    - set_calc_time
     - run
     - step
     - stop
@@ -10,15 +12,19 @@ requires:
     - get_signal
     - set_signal
     - list_signals
+    - read_output_file
   platform: Windows
 source_of_truth:
   - https://github.com/producedbysavant/simintech-code/blob/main/simintech_api/core/simulation.py
   - https://github.com/producedbysavant/simintech-code/blob/main/simintech_api/utils/xprt_signals.py
+  - https://github.com/producedbysavant/simintech-code/blob/main/docs/reference/com_api_inventory.md
   - https://github.com/producedbysavant/simintech-code/blob/main/REPORT.md
-verified: partial
+verified: true
 verified_note: >
-  Поведение GetProjectSignalList подтверждено в REPORT.md (лежит в
-  simintech-code) на реальном COM. Отсутствие выгрузки массивов и семантика
-  Simulation.run() — по коду. Модельное время через COM не двигалось ни одним
-  из методов (ProjectRun/RunTo/ProjectStep) на проектах без настроенного
-  расчёта — см. заметку в simintech-mcp/docs/roadmap-agentic-ecosystem.md.
+  Проверено на SimInTech64 2026-09-15 через MCP по stdio: проект из шаблона
+  «Схема модели общего вида.prt» (OpenTemplate) считает; SetLayerProp(…,
+  "endtime", …) задаёт момент остановки; блок «В файл» пишет строки
+  «<время> <значения…>», файл читается (Константа 2 → Усилитель 3 при
+  endtime=1 даёт 6 строк со значением 6). Поведение GetProjectSignalList
+  подтверждено в REPORT.md на реальном COM; отсутствие выгрузки массивов —
+  по коду. Почему NewProject не считает — §18 карты COM API.
