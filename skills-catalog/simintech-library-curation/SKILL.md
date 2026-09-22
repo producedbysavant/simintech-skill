@@ -104,7 +104,8 @@ python -m pytest tests/unit/test_catalog.py -v
 Даты выгрузки в `meta` каталога нет — её даёт git-история
 [`simintech_api/data/block_catalog.json`](https://github.com/producedbysavant/simintech-code/blob/main/simintech_api/data/block_catalog.json).
 
-Через `CreateBlock` не создаются только «Из памяти» и «Порт выхода»
+`CreateBlock` создаёт и «Из памяти», и «Порт выхода» (замерено на живом COM
+2026-09-18), но библиотека их отвергает: годность в расчёте не проверена
 (`UNSUPPORTED_COM_BLOCK_CLASSES`); блоки «Конечные автоматы» — в том числе
 «Состояние автомата» и «Выход данных состояния» — создаются, но только по
 полному имени записи, с префиксом «Конечные автоматы - » (см.

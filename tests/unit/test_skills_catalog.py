@@ -450,8 +450,12 @@ def _flat(text: str) -> str:
 
 
 def _class_paragraphs(skill_text: str):
-    """Абзацы о несоздаваемых и создаваемых классах — без FSM-раздела."""
-    section = _flat(skill_text).split("## Классы, которые НЕ создаются через COM", 1)[1]
+    """Абзацы об отвергаемых библиотекой и создаваемых классах — без FSM-раздела.
+
+    Заголовок правится вместе с прозой (см. проверку смысла ниже), поэтому
+    здесь он один и тот же источник, что и в `simintech-model-building`.
+    """
+    section = _flat(skill_text).split("## Классы, которые отвергает библиотека", 1)[1]
     section = section.split("## Библиотека", 1)[0]
     return section.split("Проверенно создаваемые", 1)
 
@@ -514,12 +518,95 @@ def test_language_core_unsupported_classes_match_constants():
         _code_text(CONSTANTS_PATH), "UNSUPPORTED_COM_BLOCK_CLASSES"
     )
     flat = _flat(_skill("simintech-language-core"))
-    section = flat.split("не создаются через `CreateBlock`:", 1)[1]
+    section = flat.split("которые отвергает библиотека:", 1)[1]
     listed = _quoted(section.split("См. набор", 1)[0])
 
     assert listed == unsupported, (
         f"скилл языка: {sorted(listed)}, constants.py: {sorted(unsupported)}"
     )
+
+
+# Имена и число сверялись и раньше — а проза нет: «CreateBlock для них не
+# работает» пережило и гейты выше, и замер 2026-09-18, по которому `CreateBlock`
+# создаёт **обе** записи и возвращает ненулевой id. Отказ идёт от библиотеки
+# (`Page.create_block` → `UnsupportedBlockError`) и по другой причине: годность
+# этих блоков в расчёте не проверена. Списки совпадали — расходился смысл.
+#
+# Разница для агента принципиальна: «создать нельзя» отправляет в другой
+# инструмент (встроенный язык), «создать можно, но работать не доказано» —
+# означает отказ библиотеки, который снимут, когда пригодность подтвердят.
+# Поэтому проверка держит смысл, а не только перечень.
+
+#: Скиллы, которые называют классы, отвергаемые библиотекой.
+REFUSED_CLASSES_SKILLS = (
+    "simintech-model-building",
+    "simintech-language-core",
+    "simintech-library-curation",
+)
+
+#: Формулировки, опровергнутые замером 2026-09-18. Именно они утверждают, что
+#: создание невозможно, тогда как невозможен только расчёт с этими блоками.
+REFUTED_CLAIMS = ("не создаются", "для них не работает")
+
+#: Причина отказа, которую скилл обязан назвать рядом с перечнем.
+UNPROVEN_STEMS = ("не проверена", "не проверено", "не подтверждена", "не подтверждено")
+
+
+def _refused_classes_window(skill_text: str, width: int = 400) -> str:
+    """Отрезок скилла вокруг перечня классов, отвергаемых библиотекой.
+
+    Окно, а не якорь-заголовок: заголовок правится вместе с прозой, и гейт,
+    привязанный к нему дословно, ломался бы на каждой правке формулировки,
+    ничего не проверяя по существу.
+    """
+    flat = _flat(skill_text)
+    at = flat.index("«Из памяти»")
+    return flat[max(0, at - width):at + width]
+
+
+@requires_code
+def test_skills_do_not_claim_refused_classes_cannot_be_created():
+    """Проза о классах вне COM совпадает с замером, а не только их список.
+
+    Проверка парная: сначала опровергнутое утверждение не должно встречаться,
+    затем рядом обязан стоять настоящий повод отказа. Одного запрета мало —
+    формулировку можно «починить» так, что причина исчезнет совсем, и агент
+    снова останется без объяснения, почему класс в списке.
+    """
+    for skill in REFUSED_CLASSES_SKILLS:
+        window = _refused_classes_window(_skill(skill)).lower()
+        for claim in REFUTED_CLAIMS:
+            assert claim not in window, (
+                f"{skill}: формулировка «{claim}» опровергнута замером "
+                "2026-09-18 — CreateBlock создаёт обе записи"
+            )
+        assert any(stem in window for stem in UNPROVEN_STEMS), (
+            f"{skill}: рядом с перечнем не названа причина отказа — "
+            "годность блоков в расчёте"
+        )
+
+
+#: Описание скилла — то, по чему агент выбирает скилл, ещё до чтения тела.
+#: Ложное «создать нельзя» маршрутизирует не туда ровно так же, поэтому
+#: держится отдельной проверкой: она не требует checkout'а simintech-code и
+#: работает на любом PR.
+REFUTED_DESCRIPTION_CLAIMS = ("cannot be created", "cannot create")
+
+
+def test_skill_descriptions_do_not_claim_blocks_cannot_be_created():
+    """Описания скиллов не утверждают, что блок нельзя создать через COM.
+
+    Замер 2026-09-18: `CreateBlock` создаёт отвергаемые библиотекой классы.
+    Описание, обещающее обратное, уводит агента в встроенный язык там, где
+    достаточно COM, — и это стоит ему попытки, а не только неточности.
+    """
+    for skill in _skill_dirs():
+        description = _read_frontmatter(skill / "SKILL.md").get("description", "")
+        for claim in REFUTED_DESCRIPTION_CLAIMS:
+            assert claim not in description.lower(), (
+                f"{skill.name}: описание утверждает «{claim}» — опровергнуто "
+                "замером 2026-09-18"
+            )
 
 
 @requires_code

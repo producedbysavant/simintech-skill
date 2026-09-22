@@ -1,6 +1,6 @@
 ---
 name: simintech-language-core
-description: Use when writing SimInTech built-in language code (the "Язык программирования" block), or when a block cannot be created via COM CreateBlock. Pascal-like syntax, not C. Covers banned identifiers, comparison operators, and static arrays.
+description: Use when writing SimInTech built-in language code (the "Язык программирования" block), or when the library refuses to create a block through COM. Pascal-like syntax, not C. Covers banned identifiers, comparison operators, and static arrays.
 ---
 
 # Встроенный язык SimInTech
@@ -15,11 +15,13 @@ description: Use when writing SimInTech built-in language code (the "Язык п
 ## Когда нужен этот язык
 
 Второй (после COM API) способ построения моделей: `createblock` /
-`createmodel`. **Обязателен** для классов, которые не создаются через
-`CreateBlock`:
+`createmodel`. Нужен для классов, которые отвергает библиотека:
 
 - «Из памяти»
 - «Порт выхода»
+
+`CreateBlock` их создаёт — обе записи, с ненулевым id (замерено 2026-09-18), —
+но годность в расчёте не проверена, и отказ идёт от библиотеки, а не от COM.
 
 См. набор `UNSUPPORTED_COM_BLOCK_CLASSES` в
 [`simintech_api/constants.py`](https://github.com/producedbysavant/simintech-code/blob/main/simintech_api/constants.py).

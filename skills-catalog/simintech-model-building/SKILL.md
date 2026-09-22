@@ -1,6 +1,6 @@
 ---
 name: simintech-model-building
-description: Use when building or editing a SimInTech model through the MCP server or simintech-api — creating blocks, wiring them, reading or changing block parameters. Covers the real (short) property names and the classes that cannot be created via COM.
+description: Use when building or editing a SimInTech model through the MCP server or simintech-api — creating blocks, wiring them, reading or changing block parameters. Covers the real (short) property names and the classes the library refuses to create.
 ---
 
 # Построение модели SimInTech
@@ -85,12 +85,17 @@ add_block "Сумматор" props="a=[1, -1]"
 - массивы: в стиле SimInTech — `a=[1, -1]`
 - знаки сумматора кодируются весами: `[1, -1]` — вычитание
 
-## Классы, которые НЕ создаются через COM
+## Классы, которые отвергает библиотека
 
 `constants.UNSUPPORTED_COM_BLOCK_CLASSES` (2): **«Из памяти»** и
-**«Порт выхода»**. `CreateBlock` для них не работает — нужен встроенный язык
-SimInTech (см. скилл `simintech-language-core`); в `constants.py` они помечены
-как «создаётся (id != 0), работа не проверена».
+**«Порт выхода»**. `CreateBlock` создаёт обе записи и возвращает ненулевой id —
+замерено на живом COM 2026-09-18. Отказывает уже библиотека: годность этих
+блоков в расчёте не проверена, поэтому `Page.create_block` поднимает
+`UnsupportedBlockError`. Пока пригодность не подтверждена, для них остаётся
+встроенный язык SimInTech (см. скилл `simintech-language-core`).
+
+Не путать два утверждения: создание **подтверждено**, а годность в модели — нет.
+Снятие запрета зависит от замера пригодности, а не от COM.
 
 Проверенно создаваемые классы (`SUPPORTED_COM_BLOCK_CLASSES`, 13):
 «Константа», «Усилитель», «Сумматор», «Интегратор», «Производная»,
