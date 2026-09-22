@@ -609,6 +609,25 @@ def test_skill_descriptions_do_not_claim_blocks_cannot_be_created():
             )
 
 
+def test_skill_descriptions_name_who_refuses():
+    """Сказано, **кто** отказывает, — запрета на формулировку для этого мало.
+
+    Парная половина проверки выше: описание можно «починить» так, что про
+    отказ не останется ни слова, и агент снова не поймёт, куда идти — в COM
+    или в библиотеку. Требование включается только там, где описание вообще
+    говорит об отказе: описание, не касающееся темы, ничего не должно
+    называть.
+    """
+    for skill in _skill_dirs():
+        description = _read_frontmatter(skill / "SKILL.md").get("description", "")
+        if "refus" not in description.lower():
+            continue
+        assert "library" in description.lower(), (
+            f"{skill.name}: описание говорит об отказе, не называя, кто "
+            "отказывает — отказ идёт от библиотеки, а не от COM"
+        )
+
+
 @requires_code
 def test_fsm_example_matches_constants():
     """Пример создания блока FSM идёт по полному имени записи из constants.py.
