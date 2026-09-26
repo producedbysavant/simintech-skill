@@ -13,7 +13,7 @@
 |---|---|
 | `simintech-model-building/` | Создание и правка модели: блоки, связи, параметры |
 | `simintech-simulation/` | Запуск расчёта, шаги, чтение сигналов |
-| `simintech-language-core/` | Встроенный язык SimInTech, блоки вне COM API |
+| `simintech-language-core/` | Встроенный язык SimInTech, классы, которые отвергает библиотека |
 | `simintech-library-curation/` | Регенерация каталога свойств блоков |
 
 ## Что не вошло
