@@ -1,0 +1,32 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "simintech-skill"
+version = "0.2.0"
+description = "Скиллы (доменные знания) для работы ИИ-агента с SimInTech"
+readme = "README.md"
+requires-python = ">=3.11"
+license = { text = "MIT" }
+authors = [{ name = "producedbysavant" }]
+# Установочных зависимостей нет: скиллы — это markdown и yaml.
+dependencies = []
+
+[project.optional-dependencies]
+test = [
+    "pytest>=7.0",
+    # tests/unit/test_skills_catalog.py разбирает manifest.yaml, а без PyYAML
+    # эти проверки уходят в skip (importorskip) — то есть проходят вхолостую.
+    "pyyaml>=6.0",
+]
+
+[tool.hatch.build.targets.wheel]
+# Python-пакета у проекта нет: скиллы — это markdown и yaml. Без этого блока
+# hatchling падает с "Unable to determine which files to ship inside the wheel"
+# (имени simintech_skill не соответствует ни один каталог), и `pip install -e`
+# не работает вовсе.
+only-include = ["skills-catalog"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

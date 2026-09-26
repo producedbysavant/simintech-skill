@@ -1,0 +1,25 @@
+name: simintech-model-building
+version: 0.1.0
+description: Построение и правка модели SimInTech через MCP-инструменты.
+requires:
+  mcp_tools:
+    - create_project
+    - add_block
+    - connect
+    - list_blocks
+    - get_block_params
+    - set_block_param
+    - layout_place
+  data:
+    - https://github.com/producedbysavant/simintech-code/blob/main/simintech_api/data/block_catalog.json
+source_of_truth:
+  - https://github.com/producedbysavant/simintech-code/blob/main/simintech_api/data/block_catalog.json
+  - https://github.com/producedbysavant/simintech-code/blob/main/simintech_api/catalog_tool.py
+  - https://github.com/producedbysavant/simintech-code/blob/main/docs/reference/com_api_inventory.md
+verified: true
+verified_note: >
+  Имена параметров сгенерированы из реального SimInTech (SimInTech64,
+  2026-09-10) и проверены записью с последующим чтением .xprt. Имена из
+  https://github.com/producedbysavant/simintech-code/tree/main/examples
+  оказались частично неверными (y0 у «Константы», xn у «Сумматора»)
+  и были исправлены.

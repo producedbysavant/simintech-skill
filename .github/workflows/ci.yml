@@ -1,0 +1,77 @@
+name: CI
+
+# Проверки скиллов на каждый PR. Python-пакета в репозитории нет (скиллы —
+# это markdown и yaml, в колесо кладётся только `skills-catalog/`), поэтому
+# остаются две оси: стиль тестов и сами тесты. Тесты разбирают SKILL.md,
+# манифесты и ссылки, а при наличии checkout'а `simintech-code` сверяют
+# пересказанные числа и списки с его `constants.py` и `block_catalog.json` —
+# именно расхождение копии с источником здесь и случалось.
+#
+# `simintech-code` кладётся рядом ВТОРЫМ checkout'ом, а `SIMINTECH_CODE_DIR`
+# указывает на него. Без этого шаг сверки молча скипался бы (`pytest` считает
+# skip успехом), и дрейф — «12 классов» против 958, число из чужой ревизии —
+# проходил бы PR незамеченным: ровно то, ради чего этот гейт и заведён.
+# Цена — зависимость сборки от публичного репозитория; она приемлема, потому
+# что сверяется именно пересказ его содержимого.
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Checkout simintech-code
+        uses: actions/checkout@v4
+        with:
+          repository: producedbysavant/simintech-code
+          path: .simintech-code
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Установка
+        run: pip install -e ".[test]" flake8
+
+      - name: Стиль
+        run: flake8 tests --max-line-length=88 --extend-ignore=E203,W503
+
+      - name: Тесты
+        env:
+          SIMINTECH_CODE_DIR: ${{ github.workspace }}/.simintech-code
+        # Сверка должна исполниться, а не скипнуться: скип — это зелёный PR
+        # при разошедшемся содержимом.
+        run: pytest tests/unit -q -rs
+
+  # Проверка секретов по всей истории.
+  # `fetch-depth: 0` обязателен: при checkout по умолчанию виден один коммит,
+  # и секрет, попавший в историю раньше, остался бы незамеченным.
+  secrets:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Установка gitleaks
+        env:
+          GITLEAKS_VERSION: "8.30.1"
+          # Контрольная сумма из файла, который проект публикует вместе с
+          # выпуском: скачанный архив — тот же, что выпустил проект, иначе шаг
+          # падает до запуска проверок.
+          GITLEAKS_SHA256: "551f6fc83ea457d62a0d98237cbad105af8d557003051f41f3e7ca7b3f2470eb"
+        run: |
+          curl -sSfL -o gitleaks.tar.gz "https://github.com/gitleaks/gitleaks/releases/download/v${GITLEAKS_VERSION}/gitleaks_${GITLEAKS_VERSION}_linux_x64.tar.gz"
+          echo "${GITLEAKS_SHA256}  gitleaks.tar.gz" | sha256sum -c -
+          tar xzf gitleaks.tar.gz gitleaks
+
+      # Секреты — по всей истории: из истории секрет не уходит сам.
+      # `--exit-code 1` закреплён явно: у gitleaks он по умолчанию 1, но
+      # проверка не должна зависеть от умолчания, которое может смениться.
+      - name: Секреты (вся история)
+        run: ./gitleaks git --exit-code 1 --no-banner --redact --log-opts="--all" --config .gitleaks.toml .
+

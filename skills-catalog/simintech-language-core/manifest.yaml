@@ -1,0 +1,18 @@
+name: simintech-language-core
+version: 0.1.0
+description: Встроенный язык SimInTech — синтаксис, типы, ограничения.
+requires:
+  data:
+    - https://github.com/producedbysavant/simintech-code/blob/main/
+source_of_truth:
+  - https://github.com/producedbysavant/simintech-code/blob/main/language/syntax.md
+  - https://github.com/producedbysavant/simintech-code/blob/main/language/pitfalls.md
+  - https://github.com/producedbysavant/simintech-code/blob/main/simintech_api/constants.py
+related_skills:
+  # Не входит в этот каталог: скилл про экранирование кавычек в .inc
+  # существует как самостоятельно установленный, здесь только ссылка.
+  - simintech-inc-quoting  # внешний, не в skills-catalog/
+verified: true
+verified_note: >
+  Перенесено из репозитория simintech-code (ранее simintech-code-library).
+  Раздел про .inc подтверждён практическим опытом кодогенерации.
