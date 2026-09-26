@@ -1,0 +1,28 @@
+# Dependabot: обновления зависимостей и версий action'ов.
+#
+# У пакета нет установочных зависимостей — скиллы это markdown и манифесты;
+# обновляются только extras `test` (pytest, PyYAML), по ним и работает pip-часть.
+#
+# Группировка намеренная: минорные и патчевые обновления приходят **одной** PR,
+# мажорные — **отдельными**: они ломают, и разбирать их надо поштучно.
+version: 2
+updates:
+  - package-ecosystem: pip
+    directory: "/"
+    schedule:
+      interval: weekly
+      day: monday
+    open-pull-requests-limit: 5
+    groups:
+      python-minor-patch:
+        patterns: ["*"]
+        update-types: ["minor", "patch"]
+
+  - package-ecosystem: github-actions
+    directory: "/"
+    schedule:
+      interval: weekly
+      day: monday
+    groups:
+      actions:
+        patterns: ["*"]
