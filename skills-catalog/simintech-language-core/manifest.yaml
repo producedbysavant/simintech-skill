@@ -8,11 +8,27 @@ source_of_truth:
   - https://github.com/producedbysavant/simintech-code/blob/main/language/syntax.md
   - https://github.com/producedbysavant/simintech-code/blob/main/language/pitfalls.md
   - https://github.com/producedbysavant/simintech-code/blob/main/simintech_api/constants.py
+  # Справка вендора по функциям, названным в скилле: createblock, секция
+  # initialization и перечень функций, доступных только в графическом
+  # контейнере (createprimitiv).
+  - https://help.simintech.ru/11_yazyk_programmirovaniya/6_funkcii/3_graficheskie_i_sistemnye/obekty/createblock.html
+  - https://help.simintech.ru/11_yazyk_programmirovaniya/5_klyuchevye_slova/sekcii/initialization.html
+  - https://help.simintech.ru/11_yazyk_programmirovaniya/funkcii_dostupnye_tolko_v_graf_konteinere.html
+  # Молчаливость SetPageScript: возвращает 1 и при синтаксически неверном
+  # скрипте, ошибка наружу не сообщается.
+  - https://github.com/producedbysavant/simintech-code/blob/main/simintech_api/core/script_bridge.py
 related_skills:
   # Не входит в этот каталог: скилл про экранирование кавычек в .inc
   # существует как самостоятельно установленный, здесь только ссылка.
   - simintech-inc-quoting  # внешний, не в skills-catalog/
 verified: true
 verified_note: >
-  Перенесено из репозитория simintech-code (ранее simintech-code-library).
-  Раздел про .inc подтверждён практическим опытом кодогенерации.
+  Синтаксис, типы и .inc — перенесено из репозитория simintech-code (ранее
+  simintech-code-library); раздел про .inc подтверждён практическим опытом
+  кодогенерации. Раздел о построении модели — живой замер 2026-09-28, SimInTech
+  2.26.6.23: createblock/createmodel/savemodeltofile, декларативный текст,
+  ветвление через точку родительской линии, отказ createblock во время
+  моделирования, недоступность createprimitiv из макроса, поведение TAB,
+  traceallports(port, 1) через границу контейнера. Перечень функций, которые
+  вендор рекомендует для сборки схемы, получен по сообщению технической
+  поддержки вендора, 2026-09-28.

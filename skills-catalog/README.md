@@ -13,7 +13,7 @@
 |---|---|
 | `simintech-model-building/` | Создание и правка модели: блоки, связи, параметры |
 | `simintech-simulation/` | Запуск расчёта, шаги, чтение сигналов |
-| `simintech-language-core/` | Встроенный язык SimInTech, классы, которые отвергает библиотека |
+| `simintech-language-core/` | Встроенный язык SimInTech: построение модели скриптом, декларативный текст, правила среды, классы вне COM |
 | `simintech-library-curation/` | Регенерация каталога свойств блоков |
 
 ## Что не вошло
@@ -39,6 +39,11 @@
 Имена свойств из примеров при этом недостоверны (там ставили `xn`
 «Сумматору», хотя такого параметра нет): источник истины по именам —
 [`simintech_api/data/block_catalog.json`](https://github.com/producedbysavant/simintech-code/blob/main/simintech_api/data/block_catalog.json).
+
+Знания о встроенном языке опираются не только на `simintech-code`: часть — из
+справки вендора ([help.simintech.ru](https://help.simintech.ru/)), часть — из
+живых замеров. Дата и стенд каждого замера указаны в `verified_note` манифеста
+скилла, поэтому «проверено» там всегда можно перепроверить, а не поверить.
 
 **Чего в скиллах нет намеренно:** имён свойств из
 [`blocks/`](https://github.com/producedbysavant/simintech-code/tree/main/blocks).
