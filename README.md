@@ -50,7 +50,7 @@
 
 ```bash
 pip install -e ".[test]"
-python3.11 -m pytest tests/unit -q      # 86 тестов
+python3.11 -m pytest tests/unit -q  # все тесты
 python3.11 -m flake8 tests --max-line-length=88 --extend-ignore=E203,W503
 ```
 
