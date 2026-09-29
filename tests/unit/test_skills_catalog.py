@@ -554,6 +554,12 @@ REFUTED_CLAIM_PATTERNS = (
     re.compile(r"не создать"),
     re.compile(r"не поддерживает"),
     re.compile(r"для (них|него) не работает"),
+    # Синонимы, которыми перефразировали то же утверждение: «Создать их нельзя»
+    # проходило набор зелёным (проверено мутацией при ревью 2026-09-29).
+    re.compile(r"создать (их )?нельзя"),
+    re.compile(r"нельзя создать"),
+    re.compile(r"невозможно создать"),
+    re.compile(r"не получится создать"),
 )
 
 #: Причина отказа, которую скилл обязан назвать рядом с перечнем.
@@ -629,6 +635,24 @@ REFUTED_DESCRIPTION_CLAIMS = (
     "cant create",
     "not creatable",
     "unable to create",
+    # Синонимы того же ложного утверждения: `fails to create` проходило
+    # зелёным (проверено мутацией при ревью 2026-09-29).
+    "fail to create",
+    "fails to create",
+    "cannot be built",
+    "can't be built",
+    "cant be built",
+    "impossible to create",
+    "unable to be created",
+    "not possible to create",
+)
+
+#: Признаки того, что описание вообще говорит об отказе. Подстрока `refus`
+#: ловила только саму себя: описание с «fails to create» и без слова `refusals`
+#: проходило проверку, оставаясь без актора (проверено мутацией).
+REFUSAL_STEMS = (
+    "refus", "fail", "unable", "impossible", "cannot", "can't", "cant",
+    "отказ", "нельзя", "невозможн",
 )
 
 
@@ -659,7 +683,7 @@ def test_skill_descriptions_name_who_refuses():
     """
     for skill in _skill_dirs():
         description = _read_frontmatter(skill / "SKILL.md").get("description", "")
-        if "refus" not in description.lower():
+        if not any(stem in description.lower() for stem in REFUSAL_STEMS):
             continue
         assert "library" in description.lower(), (
             f"{skill.name}: описание говорит об отказе, не называя, кто "
@@ -770,3 +794,277 @@ def test_simulation_file_block_props_match_catalog():
     }
     assert named, "свойства блока «В файл» не названы"
     assert named <= allowed, f"выдуманные свойства: {sorted(named - allowed)}"
+
+
+# ─── Знание о встроенном языке — против машинных источников ───────
+
+# Скилл языка пересказывает функции, константы и правила среды, а сверялся он
+# до этого раздела только с `constants.py` (списки классов) и формами ссылок.
+# Поэтому утверждения «`savemodeltotext` есть в поставке», «`otBlock` = 1»,
+# «отказ приходит исключением» проходили набор зелёным — проверено мутациями
+# при ревью 2026-09-29. Источники для сверки уже лежат в CI вторым checkout'ом.
+
+LANGUAGE_FUNCTIONS_PATH = "simintech_api/data/language_functions.json"
+CLAIMS_PATH = "docs/evidence/claims.yaml"
+
+#: Запись реестра утверждений с константами типов объектов. Появляется в
+#: `simintech-code` вместе с уточнением второго ответа вендора — до этого
+#: проверка пропускается с причиной, а не зеленеет молча.
+CLAIMS_OBJECT_TYPES_ID = "object-type-constants-are-named"
+
+#: Функции, которым скилл учит как документированным справкой: обязаны быть и в
+#: реестре имён, и в тексте скилла. Опечатка в имени стоит агенту вызова, а
+#: уточнение, не доехавшее до текста, теряется молча.
+SKILLED_FUNCTIONS = (
+    "createblock",
+    "createprimitiv",
+    "createwire",
+    "getobjtypeid",
+    "getparentwireid",
+    "getparentwirenodeindex",
+    "getsubmodelid",
+    "initobject",
+    "setprop",
+    "traceallports",
+)
+
+#: Семейство функций текста модели: вендор называет их в ответе поддержки, в
+#: срезе справки их нет. Проверяются обе половины — имена должны остаться в
+#: тексте и не должны появиться в реестре.
+TEXT_MODEL_FUNCTIONS = (
+    "createmodel",
+    "createmodelfromfile",
+    "savemodeltofile",
+    "savemodeltotext",
+)
+
+
+def _language_skill() -> str:
+    return (CATALOG / "simintech-language-core" / "SKILL.md").read_text(
+        encoding="utf-8"
+    )
+
+
+def _language_registry():
+    """Имена и doc-пути реестра справки (`language_functions.json`).
+
+    Реестр — вложенная структура, поэтому обход рекурсивный: собираем всё, у
+    чего есть поле `name`, и рядом — путь страницы справки для этого имени.
+    """
+    data = json.loads(_code_text(LANGUAGE_FUNCTIONS_PATH))
+    names, docs = set(), {}
+    stack = [data]
+    while stack:
+        node = stack.pop()
+        if isinstance(node, dict):
+            name = node.get("name")
+            if isinstance(name, str):
+                names.add(name)
+                doc = node.get("doc") or node.get("url")
+                if isinstance(doc, str):
+                    docs[name] = doc
+            stack.extend(node.values())
+        elif isinstance(node, list):
+            stack.extend(node)
+    return names, docs
+
+
+@requires_code
+def test_skilled_functions_exist_in_vendor_registry():
+    """Функции, которым учит скилл, есть в реестре имён справки — и в тексте.
+
+    Реестр — тот самый источник, на который скилл ссылается
+    (`test_language_core_points_at_function_registry` требует ссылку). Имя,
+    которого в реестре нет, выдумано или устарело; имя, пропавшее из текста,
+    означает, что знание потерялось при правке формулировок.
+    """
+    names, _ = _language_registry()
+    text = _language_skill()
+
+    unknown = [name for name in SKILLED_FUNCTIONS if name not in names]
+    assert not unknown, f"нет в реестре справки: {unknown}"
+
+    unmentioned = [name for name in SKILLED_FUNCTIONS if name not in text]
+    assert not unmentioned, f"функции исчезли из текста скилла: {unmentioned}"
+
+
+@requires_code
+def test_text_model_family_is_vendor_only_and_still_named():
+    """Семейство текста модели: имена названы, но за справку не выдаются.
+
+    `createmodel`, `createmodelfromfile`, `savemodeltofile` и `savemodeltotext`
+    пришли из ответа поддержки; в срезе справки их нет. Проверка двусторонняя:
+    имена обязаны остаться в тексте, а их отсутствие в реестре — быть названным.
+    """
+    names, _ = _language_registry()
+    text = _language_skill()
+
+    documented = [name for name in TEXT_MODEL_FUNCTIONS if name in names]
+    assert not documented, (
+        f"имена появились в срезе справки — скилл устарел: {documented}"
+    )
+    for name in TEXT_MODEL_FUNCTIONS:
+        assert name in text, f"{name} пропало из скилла"
+    assert "в срезе справки" in text, (
+        "скилл не говорит, что семейства нет в справке: «вендор называет» без "
+        "этого читается как «задокументировано»"
+    )
+    assert "не опира" in text, (
+        "скилл не предупреждает, что на savemodeltotext опираться нельзя: в "
+        "поставке 2.26.6.23 его не нашли, и «существует» здесь — догадка"
+    )
+
+
+@requires_code
+def test_object_type_constants_match_claims_registry():
+    """Числа типов в скилле совпадают с реестром утверждений замера.
+
+    Реестр утверждений — единственное место, где те же имена и числа записаны с
+    провенансом (`official-doc`, второй ответ поддержки). Расхождение означает,
+    что скилл и замер говорят о разных числах.
+
+    Запись появляется в `simintech-code` вместе с уточнением второго ответа
+    вендора: пока её в checkout'е нет, проверка пропускается **с названной
+    причиной** (видна под `-rs`) и оживает сама, когда запись приедет.
+    """
+    claims = _code_text(CLAIMS_PATH)
+    if CLAIMS_OBJECT_TYPES_ID not in claims:
+        pytest.skip(
+            f"в checkout'е simintech-code нет записи {CLAIMS_OBJECT_TYPES_ID} — "
+            "она приходит с уточнением второго ответа вендора"
+        )
+    entry = re.split(r"\n- id:", claims.split(CLAIMS_OBJECT_TYPES_ID, 1)[1])[0]
+
+    source = dict(re.findall(r"`(ot\w+)` = (\d+)", entry))
+    skill = dict(re.findall(r"`(ot\w+)` = (\d+)", _language_skill()))
+
+    assert source, "в реестре утверждений не разобрались константы"
+    assert skill == source, f"скилл {skill} против реестра утверждений {source}"
+
+
+@requires_code
+def test_help_links_point_to_registry_doc_paths():
+    """URL справки в скилле — те же страницы, что и в реестре имён.
+
+    Ссылка на справку — тоже знание: страница `getobjtypeid` названа в скилле
+    именно затем, чтобы числа было с чем сверить, и опечатка в пути увела бы
+    агента на 404.
+    """
+    _, docs = _language_registry()
+    text = _language_skill()
+
+    for name in ("createblock", "getobjtypeid"):
+        doc = docs.get(name)
+        assert doc, f"{name}: в реестре нет doc-пути"
+        assert f"help.simintech.ru/{doc}" in text, (
+            f"{name}: ссылка в скилле не совпадает с путём реестра ({doc})"
+        )
+
+
+def test_model_building_pointer_does_not_invent_names():
+    """Скилл-указатель называет ровно те же имена семейства, что и скилл языка.
+
+    Знание о функциях текста модели живёт в двух файлах, и правка одного без
+    другого уже случалась: уточнение второго ответа вендора вносилось руками в
+    три места.
+    """
+    in_canon = [n for n in TEXT_MODEL_FUNCTIONS if n in _language_skill()]
+    in_pointer = [
+        n for n in TEXT_MODEL_FUNCTIONS
+        if n in (CATALOG / "simintech-model-building" / "SKILL.md").read_text(
+            encoding="utf-8"
+        )
+    ]
+    assert in_pointer == in_canon, (
+        f"model-building называет {in_pointer}, language-core — {in_canon}"
+    )
+
+
+def test_reference_checks_are_not_skipped_in_ci():
+    """В CI сверка с simintech-code обязана исполниться, а не скипнуться.
+
+    `pytest` считает skip успехом, поэтому пропавший второй checkout оставил бы
+    сборку зелёной при разошедшемся содержимом — ровно та дыра, ради которой
+    сверка и заводилась. Локально (без `CI`) отсутствие checkout'а ожидаемо.
+    """
+    if not os.environ.get("CI"):
+        pytest.skip("локальный прогон: отсутствие checkout'а ожидаемо")
+    assert CODE_DIR is not None, (
+        "CI без checkout'а simintech-code: сверки с источником скипнулись бы, "
+        "а набор остался бы зелёным"
+    )
+
+
+@pytest.mark.skipif(
+    os.environ.get("SIMINTECH_CHECK_LINKS") != "1",
+    reason="сетевые проверки включаются SIMINTECH_CHECK_LINKS=1",
+)
+def test_vendor_help_links_are_reachable():
+    """Страницы справки, на которые ссылается скилл, отвечают 200.
+
+    В PR-CI не исполняется: сборка не должна зависеть от чужого сайта. Но
+    ссылка, которую никто не проверяет, гниёт молча — запускать вручную или по
+    расписанию (`SIMINTECH_CHECK_LINKS=1 pytest tests/unit -q`).
+    """
+    import urllib.request
+
+    urls = sorted({
+        url for url in re.findall(
+            r"https://help\.simintech\.ru/[^\s`)\"'>]+", _language_skill()
+        )
+    })
+    assert urls, "в скилле нет ссылок на справку"
+    for url in urls:
+        with urllib.request.urlopen(url, timeout=20) as response:
+            assert response.status == 200, url
+
+
+#: Формулировки о **форме** отказа встроенного языка: опровергнуты замером
+#: 2026-09-28 (во время расчёта `createblock` вернул `0` и не бросил ничего).
+#: Агент, ждущий исключения, примет отказ за успешное создание объекта.
+REFUTED_REFUSAL_SHAPE_PATTERNS = (
+    re.compile(r"приходит исключением"),
+    re.compile(r"возвращает исключение"),
+    re.compile(r"бросает исключение"),
+)
+
+#: Правила среды, которые нельзя вывести из текста скрипта и которые теряются
+#: молча при правке формулировок. Якорные строки, а не весь текст.
+ENVIRONMENT_RULE_ANCHORS = (
+    "предопределённая константа",          # TAB
+    "только в секции `initialization`",    # где вообще можно создавать объекты
+    "только в графическом контейнере",     # доступность createprimitiv
+)
+
+
+def test_environment_rules_stay_in_the_skill():
+    """Правила среды остаются названными, а не только подразумеваемыми.
+
+    Каждое из них стоило отдельной пробы и не выводится из текста скрипта:
+    среда либо молчит, либо пишет в окно сообщений. Правка формулировки уносит
+    предупреждение незаметно — набор при этом остаётся зелёным.
+    """
+    text = _language_skill()
+    for anchor in ENVIRONMENT_RULE_ANCHORS:
+        assert anchor in text, f"правило среды потеряно: {anchor!r}"
+
+
+def test_skills_do_not_misdescribe_the_shape_of_refusal():
+    """Отказ языка — нулевой id, а не исключение.
+
+    Проверяются оба скилла, которые об этом говорят: формулировка «приходит
+    исключением» переворачивает смысл, а агент по ней обрабатывает отказ как
+    успех.
+    """
+    for skill in ("simintech-language-core", "simintech-model-building"):
+        text = (CATALOG / skill / "SKILL.md").read_text(encoding="utf-8")
+        for pattern in REFUTED_REFUSAL_SHAPE_PATTERNS:
+            found = pattern.search(text)
+            assert found is None, (
+                f"{skill}: «{found.group(0)}» — отказ приходит нулевым id "
+                "(замер 2026-09-28), а не исключением"
+            )
+        assert "нулев" in text, (
+            f"{skill}: не сказано, что отказ приходит нулевым id, — агент "
+            "будет ждать ошибки"
+        )
