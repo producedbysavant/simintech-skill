@@ -814,17 +814,30 @@ CLAIMS_OBJECT_TYPES_ID = "object-type-constants-are-named"
 
 #: Функции, которым скилл учит как документированным справкой: обязаны быть и в
 #: реестре имён, и в тексте скилла. Опечатка в имени стоит агенту вызова, а
-#: уточнение, не доехавшее до текста, теряется молча.
+#: уточнение, не доехавшее до текста, теряется молча. Разделы про субмодель
+#: (reinitsubmodel, initsubmodelports, removeprimitiv) и про обход контейнеров
+#: (getobj, getownercontainer, submodelbypageid, findstartport, getportblockid,
+#: getfullname) добавлены замером 2026-09-29 и разбором демонстрационных
+#: проектов вендора.
 SKILLED_FUNCTIONS = (
     "createblock",
     "createprimitiv",
     "createwire",
+    "findstartport",
+    "getfullname",
+    "getobj",
     "getobjtypeid",
+    "getownercontainer",
     "getparentwireid",
     "getparentwirenodeindex",
+    "getportblockid",
     "getsubmodelid",
     "initobject",
+    "initsubmodelports",
+    "reinitsubmodel",
+    "removeprimitiv",
     "setprop",
+    "submodelbypageid",
     "traceallports",
 )
 
