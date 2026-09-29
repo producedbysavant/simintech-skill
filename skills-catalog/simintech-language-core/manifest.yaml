@@ -9,11 +9,12 @@ source_of_truth:
   - https://github.com/producedbysavant/simintech-code/blob/main/language/pitfalls.md
   - https://github.com/producedbysavant/simintech-code/blob/main/simintech_api/constants.py
   # Справка вендора по функциям, названным в скилле: createblock, секция
-  # initialization и перечень функций, доступных только в графическом
-  # контейнере (createprimitiv).
+  # initialization, перечень функций, доступных только в графическом
+  # контейнере (createprimitiv), и таблица типов getobjtypeid.
   - https://help.simintech.ru/11_yazyk_programmirovaniya/6_funkcii/3_graficheskie_i_sistemnye/obekty/createblock.html
   - https://help.simintech.ru/11_yazyk_programmirovaniya/5_klyuchevye_slova/sekcii/initialization.html
   - https://help.simintech.ru/11_yazyk_programmirovaniya/funkcii_dostupnye_tolko_v_graf_konteinere.html
+  - https://help.simintech.ru/11_yazyk_programmirovaniya/6_funkcii/3_graficheskie_i_sistemnye/obekty/getobjtypeid.html
   # Молчаливость SetPageScript: возвращает 1 и при синтаксически неверном
   # скрипте, ошибка наружу не сообщается.
   - https://github.com/producedbysavant/simintech-code/blob/main/simintech_api/core/script_bridge.py
@@ -26,12 +27,14 @@ verified_note: >
   Синтаксис, типы и .inc — перенесено из репозитория simintech-code (ранее
   simintech-code-library); раздел про .inc подтверждён практическим опытом
   кодогенерации. Раздел о построении модели — живой замер 2026-09-28, SimInTech
-  2.26.6.23: createblock/createmodel/savemodeltofile, декларативный текст,
+  2.26.6.23: savemodeltofile отвечал и выгружал контейнер, декларативный текст,
   ветвление через точку родительской линии, отказ createblock во время
   моделирования, недоступность createprimitiv из макроса, поведение TAB,
-  traceallports(port, 1) через границу контейнера. Перечень функций, которые
-  вендор рекомендует для сборки схемы, получен по сообщению технической
-  поддержки вендора, 2026-09-28. Второй ответ технической поддержки вендора
+  traceallports(port, 1) через границу контейнера. Там же измерено
+  отрицательно: createmodelfromfile объектов не создал (счётчик не изменился,
+  сообщений не было, причина не локализована), а createmodel живым вызовом не
+  проверялся. Перечень функций, которые вендор называет для сборки схемы,
+  получен по сообщению технической поддержки вендора, 2026-09-28. Второй ответ технической поддержки вендора
   (2026-09-28) уточнил контракт: порядок соседей traceallports не гарантирован
   для топологий со служебными блоками, точка ветвления отдельным объектом не
   добавляется, getparentwireid и getparentwirenodeindex вне ветвления
