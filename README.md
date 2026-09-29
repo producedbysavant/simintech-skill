@@ -50,7 +50,7 @@
 
 ```bash
 pip install -e ".[test]"
-python3.11 -m pytest tests/unit -q  # все тесты
+python3.11 -m pytest tests/unit -q -rs  # все тесты, с причинами пропусков
 python3.11 -m flake8 tests --max-line-length=88 --extend-ignore=E203,W503
 ```
 
@@ -60,7 +60,10 @@ python3.11 -m flake8 tests --max-line-length=88 --extend-ignore=E203,W503
 падает, а не проходит вхолостую.
 
 Проверка, что пути внутри `simintech-code` реально существуют, требует его
-checkout рядом (или `SIMINTECH_CODE_DIR`); без него она пропускается с причиной.
+checkout рядом (или `SIMINTECH_CODE_DIR`); без него она пропускается с причиной —
+поэтому `-rs` в команде: пропущенная проверка это не пройденная, и её причину
+надо видеть. В CI сверка обязана исполниться, а не пропуститься: без checkout'а
+набор там падает.
 Оттуда же берётся и сверка пересказанного с источником: набор несоздаваемых
 классов — из
 [`simintech_api/constants.py`](https://github.com/producedbysavant/simintech-code/blob/main/simintech_api/constants.py),
