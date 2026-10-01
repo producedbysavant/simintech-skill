@@ -812,6 +812,33 @@ CLAIMS_PATH = "docs/evidence/claims.yaml"
 #: проверка пропускается с причиной, а не зеленеет молча.
 CLAIMS_OBJECT_TYPES_ID = "object-type-constants-are-named"
 
+#: Запись реестра утверждений о default второго аргумента `traceallports`
+#: (провенанс — исходник вендора, не замер). Появляется в `simintech-code`
+#: вместе с PR #20 — до этого проверка пропускается с причиной, как у констант.
+CLAIMS_TRACEALLPORTS_DEFAULT_ID = "traceallports-second-arg-defaults-true"
+
+#: Общие фрагменты знания о default: их обязаны нести обе стороны — запись
+#: реестра (провенанс) и пункт скилла (обучение агента). Пока они на месте,
+#: «обновили одну сторону» и перечислимые перевороты молча не проходят.
+#: Граница честная: свободно дописанное в сохранённой подстроке противоречие
+#: («…порты (на самом деле — нет)») фрагментами не ловится — гейт держит
+#: согласие двух источников, а не смысл произвольного текста.
+TRACEALLPORTS_DEFAULT_FRAGMENTS = (
+    "по умолчанию",       # тема: чему равен default
+    "сопряжённые порты",  # что обходит вызов по умолчанию
+    "явный `0`",          # чем обход выключается
+    "только внешн",       # что остаётся с явным `0`
+    "awithcoports",       # механика: инициализация True в исходнике
+    "не звали",           # честность: одноаргументную форму не мерили
+    "исходник",           # провенанс: чтение исходника вендора, не замер
+)
+
+#: Перечислимые инверсии знания: «по умолчанию выключен» и родственные.
+TRACEALLPORTS_DEFAULT_INVERSIONS = (
+    "по умолчанию выключен",
+    "по умолчанию отключен",
+)
+
 #: Функции, которым скилл учит как документированным справкой: обязаны быть и в
 #: реестре имён, и в тексте скилла. Опечатка в имени стоит агенту вызова, а
 #: уточнение, не доехавшее до текста, теряется молча. Разделы про субмодель
@@ -974,6 +1001,57 @@ def test_object_type_constants_match_claims_registry():
 
 
 @requires_code
+def test_traceallports_default_matches_claims_registry():
+    """Default второго аргумента `traceallports`: скилл и реестр — одно знание.
+
+    Согласованность с реестром до этого не проверялась: знание держалось
+    подстрочным якорем (`ENVIRONMENT_RULE_ANCHORS`), и противоречие, дописанное
+    в сохранённой подстроке, проходило набор зелёным (ре-ревью skill#13). Здесь
+    обе стороны сверяются по общим фрагментам, а перечислимые инверсии
+    запрещены: дрейф «обновили одну сторону» и прямые перевороты не проходят.
+
+    Запись приходит с simintech-code PR #20; до неё в checkout'е — скип с
+    названной причиной (виден под `-rs`), как у констант типов.
+    """
+    claims = _code_text(CLAIMS_PATH)
+    if CLAIMS_TRACEALLPORTS_DEFAULT_ID not in claims:
+        pytest.skip(
+            f"в checkout'е simintech-code нет записи "
+            f"{CLAIMS_TRACEALLPORTS_DEFAULT_ID} — она приходит с PR #20"
+        )
+    entry = re.split(
+        r"\n- id:", claims.split(CLAIMS_TRACEALLPORTS_DEFAULT_ID, 1)[1]
+    )[0]
+
+    skill = _language_skill()
+    anchor = "по умолчанию обходит сопряжённые порты"
+    assert anchor in skill, (
+        f"пункт про default пропал из скилла — сверять нечего (якорь {anchor!r})"
+    )
+    start = skill.index(anchor)
+    stop = skill.find("\n- **", start)
+    bullet = skill[start:] if stop == -1 else skill[start:stop]
+
+    for fragment in TRACEALLPORTS_DEFAULT_FRAGMENTS:
+        assert fragment in entry.lower(), (
+            f"запись реестра потеряла «{fragment}»: знание изменилось — скилл "
+            "и реестр разошлись"
+        )
+        assert fragment in bullet.lower(), (
+            f"пункт скилла потерял «{fragment}»: знание реестра до скилла не "
+            "доехало"
+        )
+
+    for inversion in TRACEALLPORTS_DEFAULT_INVERSIONS:
+        assert inversion not in entry.lower(), (
+            f"инверсия в записи реестра: {inversion!r}"
+        )
+        assert inversion not in bullet.lower(), (
+            f"инверсия в пункте скилла: {inversion!r}"
+        )
+
+
+@requires_code
 def test_help_links_point_to_registry_doc_paths():
     """URL справки в скилле — те же страницы, что и в реестре имён.
 
@@ -1026,12 +1104,50 @@ def test_reference_checks_are_not_skipped_in_ci():
     )
 
 
+def _vendor_help_urls() -> set[str]:
+    """Все URL справки скилла языка — из SKILL.md **и** манифеста.
+
+    Манифест хранит `source_of_truth` — doc-пути выученных функций, — но
+    сетевая проверка сканировала только SKILL.md: добавленная в манифест
+    ссылка (так вошла `traceallports.html`, PR #13) была для неё невидима
+    (ре-ревью #13).
+    """
+    lang = CATALOG / "simintech-language-core"
+    texts = [
+        _language_skill(),
+        (lang / "manifest.yaml").read_text(encoding="utf-8"),
+    ]
+    return {
+        url
+        for text in texts
+        for url in re.findall(r"https://help\.simintech\.ru/[^\s`)\"'>]+", text)
+    }
+
+
+def test_manifest_help_urls_are_fed_to_the_network_check():
+    """Ссылки справки из манифеста доходят до сетевой проверки, а не минуют её.
+
+    Бессетевая половина: сетевой тест исполняется редко
+    (`SIMINTECH_CHECK_LINKS=1`), и сужение сканера — «ссылка потеряна» — иначе
+    прошло бы молча. Мутация «манифест убран из сканера» роняет этот тест.
+    """
+    manifest = (CATALOG / "simintech-language-core" / "manifest.yaml").read_text(
+        encoding="utf-8"
+    )
+    in_manifest = set(
+        re.findall(r"https://help\.simintech\.ru/[^\s`)\"'>]+", manifest)
+    )
+    assert in_manifest, "в манифесте нет ссылок справки — проверять нечего"
+    missing = in_manifest - _vendor_help_urls()
+    assert not missing, f"выпали из сетевой проверки: {sorted(missing)}"
+
+
 @pytest.mark.skipif(
     os.environ.get("SIMINTECH_CHECK_LINKS") != "1",
     reason="сетевые проверки включаются SIMINTECH_CHECK_LINKS=1",
 )
 def test_vendor_help_links_are_reachable():
-    """Страницы справки, на которые ссылается скилл, отвечают 200.
+    """Страницы справки скилла (SKILL.md и манифест) отвечают 200.
 
     В PR-CI не исполняется: сборка не должна зависеть от чужого сайта. Но
     ссылка, которую никто не проверяет, гниёт молча — запускать вручную или по
@@ -1039,12 +1155,8 @@ def test_vendor_help_links_are_reachable():
     """
     import urllib.request
 
-    urls = sorted({
-        url for url in re.findall(
-            r"https://help\.simintech\.ru/[^\s`)\"'>]+", _language_skill()
-        )
-    })
-    assert urls, "в скилле нет ссылок на справку"
+    urls = sorted(_vendor_help_urls())
+    assert urls, "в скилле и манифесте нет ссылок на справку"
     for url in urls:
         with urllib.request.urlopen(url, timeout=20) as response:
             assert response.status == 200, url
@@ -1065,7 +1177,8 @@ ENVIRONMENT_RULE_ANCHORS = (
     "предопределённая константа",          # TAB
     "только в секции `initialization`",    # где вообще можно создавать объекты
     "только в графическом контейнере",     # доступность createprimitiv
-    # traceallports: default аргумента — не «0», а включённый обход
+    # traceallports: default аргумента — не «0», а включённый обход;
+    # сверка с реестром — test_traceallports_default_matches_claims_registry
     "по умолчанию обходит сопряжённые порты",
 )
 
