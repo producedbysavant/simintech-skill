@@ -27,6 +27,9 @@ source_of_truth:
   - https://help.simintech.ru/11_yazyk_programmirovaniya/6_funkcii/3_graficheskie_i_sistemnye/obekty/submodelbypageid.html
   - https://help.simintech.ru/11_yazyk_programmirovaniya/6_funkcii/3_graficheskie_i_sistemnye/porty_blokov_linii_svyazi/findstartport.html
   - https://help.simintech.ru/11_yazyk_programmirovaniya/6_funkcii/3_graficheskie_i_sistemnye/porty_blokov_linii_svyazi/getportblockid.html
+  # Справка по traceallports: одноаргументная форма, про default которой
+  # говорит скилл (обход с сопряжёнными портами включён по умолчанию).
+  - https://help.simintech.ru/11_yazyk_programmirovaniya/6_funkcii/3_graficheskie_i_sistemnye/porty_blokov_linii_svyazi/traceallports.html
   # Молчаливость SetPageScript: возвращает 1 и при синтаксически неверном
   # скрипте, ошибка наружу не сообщается.
   - https://github.com/producedbysavant/simintech-code/blob/main/simintech_api/core/script_bridge.py
@@ -49,7 +52,8 @@ verified_note: >
   2.26.6.23: savemodeltofile отвечал и выгружал контейнер, декларативный текст,
   ветвление через точку родительской линии, отказ createblock во время
   моделирования, недоступность createprimitiv из макроса, поведение TAB,
-  traceallports(port, 1) через границу контейнера. Там же измерено
+  различие форм traceallports(port, 0) и (port, 1) — обход через границу
+  контейнера. Там же измерено
   отрицательно: createmodelfromfile объектов не создал (счётчик не изменился,
   сообщений не было, причина не локализована), а createmodel живым вызовом не
   проверялся. Перечень функций, которые вендор называет для сборки схемы,
@@ -88,3 +92,7 @@ verified_note: >
   Сбор данных требует открывать и закрывать файл в теле на каждом шаге
   (дескриптор из initialization держит файл залоченным, а режимы создания и
   записи усекают файл — дописывание через seek и filesize).
+  Уточнение из исходника (не замер): второй аргумент traceallports по умолчанию
+  включён — в исходнике функции, полученном от технической поддержки вендора
+  2026-09-28, aWithCoPorts инициализируется True и переопределяется только
+  переданным аргументом; одноаргументную форму живым прогоном не звали.
