@@ -1180,6 +1180,8 @@ ENVIRONMENT_RULE_ANCHORS = (
     # traceallports: default аргумента — не «0», а включённый обход;
     # сверка с реестром — test_traceallports_default_matches_claims_registry
     "по умолчанию обходит сопряжённые порты",
+    # mstarter: макрос — не скрипт страницы (живой прогон 2026-10-01)
+    "Контекст макроса — не скрипт страницы",
 )
 
 
