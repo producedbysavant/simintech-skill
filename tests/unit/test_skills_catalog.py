@@ -1105,18 +1105,19 @@ def test_reference_checks_are_not_skipped_in_ci():
 
 
 def _vendor_help_urls() -> set[str]:
-    """Все URL справки скилла языка — из SKILL.md **и** манифеста.
+    """Все URL справки скиллов каталога — из каждого SKILL.md **и** манифеста.
 
-    Манифест хранит `source_of_truth` — doc-пути выученных функций, — но
-    сетевая проверка сканировала только SKILL.md: добавленная в манифест
-    ссылка (так вошла `traceallports.html`, PR #13) была для неё невидима
-    (ре-ревью #13).
+    Сначала сканер был зашит на скилл языка, потом — на его манифест: ссылка,
+    добавленная в манифест (так вошла `traceallports.html`, PR #13), была для
+    сетевой проверки невидима (ре-ревью #13), а со вторым скиллом со ссылками
+    (`simintech-langblock`) та же дыра закрывалась бы «по совпадению»
+    продублированного URL. Сканируется весь каталог.
     """
-    lang = CATALOG / "simintech-language-core"
-    texts = [
-        _language_skill(),
-        (lang / "manifest.yaml").read_text(encoding="utf-8"),
-    ]
+    texts = []
+    for skill in _skill_dirs():
+        for pattern in ("*.md", "*.yaml"):
+            texts.extend(p.read_text(encoding="utf-8")
+                         for p in skill.glob(pattern))
     return {
         url
         for text in texts
@@ -1125,19 +1126,20 @@ def _vendor_help_urls() -> set[str]:
 
 
 def test_manifest_help_urls_are_fed_to_the_network_check():
-    """Ссылки справки из манифеста доходят до сетевой проверки, а не минуют её.
+    """Ссылки справки из манифестов доходят до сетевой проверки, а не минуют её.
 
     Бессетевая половина: сетевой тест исполняется редко
     (`SIMINTECH_CHECK_LINKS=1`), и сужение сканера — «ссылка потеряна» — иначе
-    прошло бы молча. Мутация «манифест убран из сканера» роняет этот тест.
+    прошло бы молча. Мутация «манифесты убраны из сканера» роняет этот тест.
     """
-    manifest = (CATALOG / "simintech-language-core" / "manifest.yaml").read_text(
-        encoding="utf-8"
-    )
-    in_manifest = set(
-        re.findall(r"https://help\.simintech\.ru/[^\s`)\"'>]+", manifest)
-    )
-    assert in_manifest, "в манифесте нет ссылок справки — проверять нечего"
+    in_manifest: set[str] = set()
+    for skill in _skill_dirs():
+        for mf in skill.glob("*.yaml"):
+            in_manifest.update(
+                re.findall(r"https://help\.simintech\.ru/[^\s`)\"'>]+",
+                           mf.read_text(encoding="utf-8"))
+            )
+    assert in_manifest, "в манифестах нет ссылок справки — проверять нечего"
     missing = in_manifest - _vendor_help_urls()
     assert not missing, f"выпали из сетевой проверки: {sorted(missing)}"
 
@@ -1183,6 +1185,28 @@ ENVIRONMENT_RULE_ANCHORS = (
     # mstarter: макрос — не скрипт страницы (живой прогон 2026-10-01)
     "Контекст макроса — не скрипт страницы",
 )
+
+
+#: Правила блока «Язык программирования» (скилл `simintech-langblock`),
+#: которые не выводятся из синтаксиса и теряются при правке формулировок:
+#: загрузка входов по флагу в теле (не в initialization — там порты субмоделей
+#: ещё не установлены), lengthofm про объявленную размерность, диагностика
+#: выходным сигналом. Каждая фраза — в одном месте текста (дубль ослабил бы
+#: якорь: удаление одного вхождения не роняло бы тест).
+LANGBLOCK_ANCHORS = (
+    "порты субмоделей могут быть ещё не установлены",
+    "про объявленную размерность",
+    "выходным сигналом и `exit`",
+)
+
+
+def test_langblock_skill_keeps_its_rules():
+    """Правила ЯП-блока остаются названными, а не только подразумеваемыми."""
+    text = (CATALOG / "simintech-langblock" / "SKILL.md").read_text(
+        encoding="utf-8"
+    )
+    for anchor in LANGBLOCK_ANCHORS:
+        assert anchor in text, f"правило ЯП-блока потеряно: {anchor!r}"
 
 
 def test_environment_rules_stay_in_the_skill():
