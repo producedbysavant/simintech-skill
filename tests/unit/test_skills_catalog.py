@@ -851,6 +851,24 @@ TEXT_MODEL_FUNCTIONS = (
     "savemodeltotext",
 )
 
+#: Исходы контура — имена, под которыми их отдаёт MCP-инструмент
+#: (`simintech-mcp`, `tools/page_script.py`). Скилл обязан назвать их
+#: **дословно**: агент сверяет ответ инструмента со знанием, и «примерно так»
+#: здесь стоит неверного решения о следующем шаге.
+CONTOUR_OUTCOMES = (
+    "ok",
+    "model-not-running",
+    "aborted",
+    "not-compiled",
+    "section-not-run",
+)
+
+#: Указатель на пример-сценарий: файл живёт в репозитории MCP-сервера.
+CONTOUR_EXAMPLE_URL = (
+    "https://github.com/producedbysavant/simintech-mcp/blob/main/"
+    "docs/examples/language-contour.md"
+)
+
 
 def _language_skill() -> str:
     return (CATALOG / "simintech-language-core" / "SKILL.md").read_text(
@@ -1060,6 +1078,83 @@ def test_environment_rules_stay_in_the_skill():
     text = _language_skill()
     for anchor in ENVIRONMENT_RULE_ANCHORS:
         assert anchor in text, f"правило среды потеряно: {anchor!r}"
+
+
+#: Утверждения, которые контур опроверг: пока они в тексте, агент обходит
+#: инструменты стороной и собирает модель вручную по блокам. Список — по факту
+#: формулировок, а не по смыслу абзаца: правится текст — правится и список.
+REFUTED_CONTOUR_PHRASES = (
+    "Готовой доставки у агента нет",
+    "Инструмента для скриптов у MCP-сервера нет",
+)
+
+#: Опровергнутый отрицательный результат 2026-09-28: причина была в кавычках
+#: (`chr(34)`), а не в среде. Строки держатся как якоря, чтобы абзац не вернулся
+#: ни в скилл языка, ни в скилл сборки модели.
+REFUTED_LOAD_PHRASES = (
+    "Загрузка текста нашей стороной пока не подтверждена",
+    "причина не локализована, а `createmodel` живым вызовом не проверялся",
+)
+
+
+def test_contour_outcomes_and_example_are_in_the_skill():
+    """Скилл называет пять исходов контура и указывает на пример-сценарий.
+
+    Исходы — контракт инструмента `run_page_script`: по ним агент решает, что
+    делать дальше (повторить, остановиться, сказать человеку про неподключённый
+    вход). Указатель на пример — не украшение: полный порядок шагов с численной
+    приёмкой живёт там, и без ссылки агент его не найдёт.
+    """
+    text = _language_skill()
+
+    missing = [name for name in CONTOUR_OUTCOMES if name not in text]
+    assert not missing, f"в скилле нет исходов контура: {missing}"
+
+    assert CONTOUR_EXAMPLE_URL in text, (
+        "в скилле нет указателя на пример docs/examples/language-contour.md")
+
+
+def test_skill_does_not_deny_the_contour_tools():
+    """Скилл не утверждает, что доставки скрипта у агента нет.
+
+    Так было до `simintech-mcp` PR-2 — и утверждение честно описывало тогдашнее
+    состояние. Теперь оно опровергнуто: `set_page_script`, `run_page_script` и
+    `inject_submodel_script` ставят тело в `initialization` и возвращают прежний
+    скрипт страницы.
+    """
+    text = _language_skill()
+
+    found = [phrase for phrase in REFUTED_CONTOUR_PHRASES if phrase in text]
+    assert not found, (
+        f"в скилле остались опровергнутые утверждения: {found} — доставка есть")
+
+
+def test_model_building_points_to_the_contour():
+    """Скилл сборки модели указывает на пример контура.
+
+    Проверяется **указатель**, а не пересказ: пересказ разошёлся бы с
+    `simintech-language-core` при первой же правке.
+    """
+    text = (CATALOG / "simintech-model-building" / "SKILL.md").read_text(
+        encoding="utf-8")
+
+    assert CONTOUR_EXAMPLE_URL in text, (
+        "в скилле сборки модели нет указателя на пример контура")
+
+
+def test_skills_do_not_repeat_the_refuted_load_result():
+    """Отрицательный результат загрузки снят в обоих скиллах.
+
+    `simintech-language-core` объясняет: `createmodelfromfile` объектов не
+    создал из-за удвоенных кавычек, а не из-за среды; пять демонстрационных
+    проектов вендора проходят (замер 2026-09-29). Пока старая формулировка
+    живёт в скилле сборки модели, агент верит тому тексту, который прочитал
+    первым.
+    """
+    for name in ("simintech-model-building", "simintech-language-core"):
+        text = (CATALOG / name / "SKILL.md").read_text(encoding="utf-8")
+        found = [phrase for phrase in REFUTED_LOAD_PHRASES if phrase in text]
+        assert not found, f"{name}: остался опровергнутый результат: {found}"
 
 
 def test_skills_do_not_misdescribe_the_shape_of_refusal():

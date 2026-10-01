@@ -1,5 +1,5 @@
 name: simintech-language-core
-version: 0.1.0
+version: 0.2.0
 description: Встроенный язык SimInTech — синтаксис, типы, ограничения.
 requires:
   data:
@@ -30,6 +30,13 @@ source_of_truth:
   # Молчаливость SetPageScript: возвращает 1 и при синтаксически неверном
   # скрипте, ошибка наружу не сообщается.
   - https://github.com/producedbysavant/simintech-code/blob/main/simintech_api/core/script_bridge.py
+  # Контур языкового слоя: пять исходов, маркеры CTX_BEGIN/CTX_END, порядок
+  # доставки скрипта в секцию initialization — спецификация живёт в
+  # `docs/superpowers/specs/` репозитория simintech-code и добавляется сюда,
+  # когда та ветка влита: сверка путей (`test_referenced_paths_exist_in_
+  # simintech_code`) требует, чтобы путь существовал в `main`, а не в ветке.
+  # Пример-сценарий с численной приёмкой и падающими случаями (MCP-сервер).
+  - https://github.com/producedbysavant/simintech-mcp/blob/main/docs/examples/language-contour.md
 related_skills:
   # Не входит в этот каталог: скилл про экранирование кавычек в .inc
   # существует как самостоятельно установленный, здесь только ссылка.
@@ -70,3 +77,14 @@ verified_note: >
   не срабатывает при остановке расчёта извне. Функции обхода контейнеров
   (getobj, getownercontainer, submodelbypageid, findstartport, getportblockid,
   getfullname) прочитаны в демонстрационных проектах вендора.
+  Контур языкового слоя измерен 2026-09-29 (та же поставка) и реализован
+  (simintech-code PR #15 — механика: run_page_script, маркеры CTX_BEGIN/CTX_END,
+  пять исходов, тела операций; simintech-code PR #16 — чтение скрипта страницы
+  без запуска расчёта; simintech-mcp — инструменты). Тело, поставленное скриптом
+  страницы, исполняется в секции initialization; исход различается по маркерам и
+  росту модельного времени: ok, model-not-running, aborted, not-compiled,
+  section-not-run. Живой прогон контура: 2 passed, затем прогон инструментов на
+  поставке — сбор данных субмоделью вырос до 5459 строк, пока шёл расчёт.
+  Сбор данных требует открывать и закрывать файл в теле на каждом шаге
+  (дескриптор из initialization держит файл залоченным, а режимы создания и
+  записи усекают файл — дописывание через seek и filesize).
