@@ -1183,6 +1183,26 @@ ENVIRONMENT_RULE_ANCHORS = (
 )
 
 
+#: Правила блока «Язык программирования» (скилл `simintech-langblock`),
+#: которые не выводятся из синтаксиса и теряются при правке формулировок:
+#: порядок секций под кодогенерацию, неизменяемость входного массива,
+#: диагностика выходным сигналом вместо seterrorstr.
+LANGBLOCK_ANCHORS = (
+    "константы размеров портов",
+    "он принадлежит источнику",
+    "выходным сигналом",
+)
+
+
+def test_langblock_skill_keeps_its_rules():
+    """Правила ЯП-блока остаются названными, а не только подразумеваемыми."""
+    text = (CATALOG / "simintech-langblock" / "SKILL.md").read_text(
+        encoding="utf-8"
+    )
+    for anchor in LANGBLOCK_ANCHORS:
+        assert anchor in text, f"правило ЯП-блока потеряно: {anchor!r}"
+
+
 def test_environment_rules_stay_in_the_skill():
     """Правила среды остаются названными, а не только подразумеваемыми.
 

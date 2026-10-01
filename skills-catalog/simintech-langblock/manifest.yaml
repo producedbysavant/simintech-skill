@@ -1,0 +1,24 @@
+name: simintech-langblock
+version: 0.1.0
+description: Блок «Язык программирования» — шаблон и формат скрипта (порядок секций, порты, кодогенерация, чек-лист).
+requires:
+  mcp_tools:
+    - export_model_text
+  data:
+    - https://github.com/producedbysavant/simintech-code/blob/main/language/syntax.md
+source_of_truth:
+  # Канон языка и разбор ошибок: структура секций и правила кодогенерации
+  # скилл пересказывает отсюда, а не из памяти.
+  - https://github.com/producedbysavant/simintech-code/blob/main/language/syntax.md
+  - https://github.com/producedbysavant/simintech-code/blob/main/language/pitfalls.md
+  # Справка вендора по секции initialization (порядок «до первого шага»).
+  - https://help.simintech.ru/11_yazyk_programmirovaniya/5_klyuchevye_slova/sekcii/initialization.html
+verified: true
+verified_note: >
+  Структура скрипта, порядок секций и чек-лист сведены 2026-10-01 из свода
+  правил разработки (внутренний, не публикуется — в скилл вошли только
+  продуктовые факты) и канона языка (language/syntax.md, language/pitfalls.md;
+  там же — разбор каждого пункта «не транслируется»). Проектные конвенции
+  (именование сигналов по БД, шапка файла, раскладка файлов) намеренно не
+  включены. Сплошного живого прогона кодогенерации по каждому пункту не было:
+  при расхождении верьте syntax.md и прогону, а не этому пересказу.
