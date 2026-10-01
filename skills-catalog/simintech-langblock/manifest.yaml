@@ -1,24 +1,31 @@
 name: simintech-langblock
 version: 0.1.0
-description: Блок «Язык программирования» — шаблон и формат скрипта (порядок секций, порты, кодогенерация, чек-лист).
+description: Блок «Язык программирования» — каркас и правила скрипта (порядок объявлений, порты, трансляция в C, чек-лист).
 requires:
   mcp_tools:
     - export_model_text
+    - import_model_text
   data:
     - https://github.com/producedbysavant/simintech-code/blob/main/language/syntax.md
 source_of_truth:
-  # Канон языка и разбор ошибок: структура секций и правила кодогенерации
-  # скилл пересказывает отсюда, а не из памяти.
+  # Канон языка: порядок объявлений, типы, что не переживает трансляцию.
   - https://github.com/producedbysavant/simintech-code/blob/main/language/syntax.md
+  # Разбор ошибок: деление на ноль (§2.1), границы массивов (§2.3),
+  # арифметика в индексах (§2.4), #/&/.. и динамика (§3), массивы (§7).
   - https://github.com/producedbysavant/simintech-code/blob/main/language/pitfalls.md
-  # Справка вендора по секции initialization (порядок «до первого шага»).
+  # Шаблон однократной загрузки по флагу (секция initialized).
+  - https://github.com/producedbysavant/simintech-code/blob/main/language/keywords.md
+  # Справка вендора: секция initialization (закрывается `end;`) и правила
+  # lengthofm для входа без размерности.
   - https://help.simintech.ru/11_yazyk_programmirovaniya/5_klyuchevye_slova/sekcii/initialization.html
 verified: true
 verified_note: >
-  Структура скрипта, порядок секций и чек-лист сведены 2026-10-01 из свода
-  правил разработки (внутренний, не публикуется — в скилл вошли только
-  продуктовые факты) и канона языка (language/syntax.md, language/pitfalls.md;
-  там же — разбор каждого пункта «не транслируется»). Проектные конвенции
-  (именование сигналов по БД, шапка файла, раскладка файлов) намеренно не
-  включены. Сплошного живого прогона кодогенерации по каждому пункту не было:
-  при расхождении верьте syntax.md и прогону, а не этому пересказу.
+  Каркас, порядок объявлений и правила трансляции сведены 2026-10-01 из канона
+  языка simintech-code (language/syntax.md, language/pitfalls.md,
+  language/keywords.md) и справки вендора; защитные приёмы чек-листа —
+  общеинженерная практика (деление и границы разобраны и в pitfalls
+  §2.1/§2.3). Правила include в каноне нет — форма взята из справки вендора и
+  живым прогоном не проверялась. Сплошного живого прогона кодогенерации по
+  каждому пункту не было: при расхождении верьте канону и прогону, а не этому
+  пересказу. Механика машинной правки скрипта блока (setprop + обязательный
+  reinitlangblock) — в simintech-mcp#23.
