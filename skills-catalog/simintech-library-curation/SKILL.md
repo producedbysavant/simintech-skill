@@ -105,10 +105,11 @@ python -m pytest tests/unit/test_catalog.py -v
 [`simintech_api/data/block_catalog.json`](https://github.com/producedbysavant/simintech-code/blob/main/simintech_api/data/block_catalog.json).
 
 `CreateBlock` создаёт и `Из памяти`, и «Порт выхода» (замерено на живом COM
-2026-09-18). Отвергает библиотека теперь только «Порт выхода»: его годность в
-расчёте не проверена (`UNSUPPORTED_COM_BLOCK_CLASSES`); `Из памяти` снят с
-запрета 05.10.2026 — годность подтверждена замером (пара памяти считает,
-значение ходит). Блоки «Конечные автоматы» — в том числе
+2026-09-18). Отвергает библиотека теперь только «Порт выхода»
+(`UNSUPPORTED_COM_BLOCK_CLASSES`) — и это политика allowlist, а не негодность:
+импортом текста он создаётся и в расчёте годен (замеры 03.10 и 08.10.2026).
+`Из памяти` снят с запрета 05.10.2026 — годность подтверждена замером (пара
+памяти считает, значение ходит). Блоки «Конечные автоматы» — в том числе
 «Состояние автомата» и «Выход данных состояния» — создаются, но только по
 полному имени записи, с префиксом «Конечные автоматы - » (см.
 [`simintech_api/constants.py`](https://github.com/producedbysavant/simintech-code/blob/main/simintech_api/constants.py)).
