@@ -8,10 +8,19 @@ description: Use when running a SimInTech model and getting its results — crea
 Проект для расчёта создаётся из шаблона, время расчёта задаёт `end_time` —
 это описано в скилле `simintech-model-building`. Здесь — про сам расчёт.
 
+## Композит simulate
+
+`simulate(to_time=N, end_time=..., step_count=..., output_path=...)` объединяет
+`set_calc_time`, `run`/`step`, `get_time`, `read_output_file` и
+`summarize_output_file`. Возвращает модельное время и сводку результата.
+`end_time` меняет конечное время расчёта, `step_count` заменяет `run` на шаги.
+Для точечного контроля используйте низкоуровневые инструменты ниже.
+
 ## Инструменты
 
 | Инструмент | Назначение |
 |---|---|
+| `simulate(...)` | Один вызов: время, run/step, чтение и сводка |
 | `create_project(end_time=N)` | Проект из шаблона + конечное время расчёта |
 | `set_calc_time(N)` | Изменить конечное время расчёта (свойство `endtime`) |
 | `run(to_time=N)` | Расчёт до момента N секунд |
