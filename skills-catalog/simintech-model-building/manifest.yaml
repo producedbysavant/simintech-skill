@@ -48,7 +48,9 @@ source_of_truth:
   - https://github.com/producedbysavant/simintech-code/blob/main/simintech_api/data/block_catalog.json
   - https://github.com/producedbysavant/simintech-code/blob/main/simintech_api/catalog_tool.py
   - https://github.com/producedbysavant/simintech-code/blob/main/docs/reference/com_api_inventory.md
-  # Канонический текст правила размеров nport-блоков (MCP-сервер).
+  # Числа и классы правила размеров nport-блоков (rules.py) и его текст
+  # (tool_docs.py) в MCP-сервере.
+  - https://github.com/producedbysavant/simintech-mcp/blob/main/simintech_mcp/rules.py
   - https://github.com/producedbysavant/simintech-mcp/blob/main/simintech_mcp/tool_docs.py
 verified: true
 verified_note: >
