@@ -1366,3 +1366,59 @@ def test_skills_do_not_misdescribe_the_shape_of_refusal():
             f"{skill}: не сказано, что отказ приходит нулевым id, — агент "
             "будет ждать ошибки"
         )
+
+
+def test_model_building_has_variable_input_section():
+    """Раздел про nport: правило, оба пути смены входов, нормализация и наложения."""
+    text = (CATALOG / "simintech-model-building" / "SKILL.md").read_text(
+        encoding="utf-8")
+    marker = "## Блоки с переменным числом входов"
+    assert marker in text, "в скилле сборки модели нет раздела про nport"
+    body = text.split(marker, 1)[1].split("\n## ", 1)[0]
+
+    for token in (
+        "nport", "set_block_param", "layout_place", "normalize_only",
+        "format_model", "save_screenshot", "налож", "16 px", "8 px",
+        "32 px", "simintech://guides/block-sizing", "Оператор ИЛИ",
+    ):
+        assert token in body, f"в разделе про nport нет {token!r}"
+
+
+def test_language_core_links_nport_size_rule():
+    """Скилл языка связывает nport с размером и даёт указатель на канон."""
+    text = (CATALOG / "simintech-language-core" / "SKILL.md").read_text(
+        encoding="utf-8")
+    anchor = "**`nport` и размер блока.**"
+    assert anchor in text, "в скилле языка нет абзаца про nport и размер"
+    window = text[text.index(anchor):text.index(anchor) + 900]
+
+    assert "set_block_param" in window
+    assert "simintech://guides/block-sizing" in window
+    assert "16 px" in window
+
+
+def test_manifest_lists_tools_of_variable_input_section():
+    """Манифест сборки модели называет инструменты раздела про nport."""
+    data = yaml.safe_load(
+        (CATALOG / "simintech-model-building" / "manifest.yaml").read_text(
+            encoding="utf-8"))
+    tools = set(data["requires"]["mcp_tools"])
+
+    assert {
+        "set_block_param", "layout_place", "format_model", "build_model",
+        "fit_port_blocks", "check_model_layout",
+    } <= tools
+
+
+def test_skill_guide_uris_are_known():
+    """Все simintech://guides/... в скиллах принадлежат известному набору."""
+    known = {
+        "simintech://guides/model-text",
+        "simintech://guides/wire-geometry",
+        "simintech://guides/block-sizing",
+    }
+    pattern = re.compile(r"simintech://guides/[a-z-]+")
+    for skill in _skill_dirs():
+        text = (skill / "SKILL.md").read_text(encoding="utf-8")
+        found = set(pattern.findall(text))
+        assert found <= known, f"{skill.name}: неизвестные guide-URI {found - known}"

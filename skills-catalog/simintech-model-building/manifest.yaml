@@ -5,6 +5,7 @@ requires:
   # Все MCP-инструменты, упоминаемые в SKILL.md (сверка 16.10.2026): скилл
   # называет их в тексте, и список — обязательство, а не «ходовые семь».
   mcp_tools:
+    - build_model
     - create_project
     - add_block
     - connect
@@ -12,15 +13,19 @@ requires:
     - get_block_params
     - set_block_param
     - layout_place
+    - format_model
     - audit_routing
     - check_model_layout
     - connect_branch
     - disconnect
+    - doctor
     - export_model_text
     - fit_port_blocks
     - fit_value_labels
     - get_time
+    - help_text
     - import_model_text
+    - inspect_model
     - open_project
     - read_output_file
     - reload_project
@@ -29,10 +34,12 @@ requires:
     - run_page_script
     - save_project
     - save_screenshot
+    - search_tools
     - set_block_center
     - set_block_size
     - set_calc_time
     - set_page_script
+    - simulate
     - step
     - stop
   data:
@@ -41,6 +48,10 @@ source_of_truth:
   - https://github.com/producedbysavant/simintech-code/blob/main/simintech_api/data/block_catalog.json
   - https://github.com/producedbysavant/simintech-code/blob/main/simintech_api/catalog_tool.py
   - https://github.com/producedbysavant/simintech-code/blob/main/docs/reference/com_api_inventory.md
+  # Числа и классы правила размеров nport-блоков (rules.py) и его текст
+  # (tool_docs.py) в MCP-сервере.
+  - https://github.com/producedbysavant/simintech-mcp/blob/main/simintech_mcp/rules.py
+  - https://github.com/producedbysavant/simintech-mcp/blob/main/simintech_mcp/tool_docs.py
 verified: true
 verified_note: >
   Имена параметров сгенерированы из реального SimInTech (SimInTech64,
@@ -57,3 +68,8 @@ verified_note: >
   2.26.9.29), «Порт выхода» годен импортом (замеры 03.10 и 08.10.2026),
   `save_project` — атомарная запись и правило «сохранили → переоткрыли»
   (mcp#148), запечённая геометрия проводов импорта (mcp#150).
+  Живой замер 23.10.2026 (2.26.9.29), пять классов с nport: импорт ставит
+  32×32 при любом nport; SetPortCount добавляет пины, высота 16 × N даёт
+  шаг портов 16 и поля 8 / 8; размер, nport и координаты переживают
+  save+reopen. set_block_param(nport) пересобирает пины и ставит размер;
+  контурная запись размера требует остановленного проекта.
