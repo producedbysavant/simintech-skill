@@ -8,6 +8,9 @@ source_of_truth:
   - https://github.com/producedbysavant/simintech-code/blob/main/language/syntax.md
   - https://github.com/producedbysavant/simintech-code/blob/main/language/pitfalls.md
   - https://github.com/producedbysavant/simintech-code/blob/main/simintech_api/constants.py
+  # Канонический текст правила размеров nport-блоков (MCP-сервер):
+  # высота 16 px на вход, смена nport через set_block_param.
+  - https://github.com/producedbysavant/simintech-mcp/blob/main/simintech_mcp/tool_docs.py
   # Справка вендора по функциям, названным в скилле: createblock, секция
   # initialization, перечень функций, доступных только в графическом
   # контейнере (createprimitiv), и таблица типов getobjtypeid.
