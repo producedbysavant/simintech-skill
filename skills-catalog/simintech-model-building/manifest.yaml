@@ -1,11 +1,15 @@
 name: simintech-model-building
-version: 0.1.0
+version: 0.2.0
 description: Построение и правка модели SimInTech через MCP-инструменты.
 requires:
-  # Все MCP-инструменты, упоминаемые в SKILL.md (сверка 16.10.2026): скилл
+  # Все MCP-инструменты, упоминаемые в SKILL.md (сверка 28.10.2026): скилл
   # называет их в тексте, и список — обязательство, а не «ходовые семь».
   mcp_tools:
     - build_model
+    - build_and_verify
+    - get_model_manifest
+    - load_model
+    - query_model
     - create_project
     - add_block
     - connect
@@ -73,3 +77,7 @@ verified_note: >
   шаг портов 16 и поля 8 / 8; размер, nport и координаты переживают
   save+reopen. set_block_param(nport) пересобирает пины и ставит размер;
   контурная запись размера требует остановленного проекта.
+  Сверка 28.10.2026 против simintech-mcp main 1032098: видимое ядро выросло
+  до 13 инструментов, полный каталог до 69; добавлен указатель на скилл
+  simintech-model-ir и build_and_verify. Живой приёмки Model IR на Windows
+  не было, знание опирается на unit-наборы и влитые C1-C5, M1-M3.
