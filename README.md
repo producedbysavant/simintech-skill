@@ -12,6 +12,7 @@
 | Скилл | Когда применять |
 |---|---|
 | `simintech-model-building/` | Создание и правка модели: блоки, связи, параметры |
+| `simintech-model-ir/` | Анализ всей модели и проверка: паспорт IR, запросы к графу, контракты, `build_and_verify` |
 | `simintech-simulation/` | Запуск расчёта, шаги, чтение сигналов |
 | `simintech-language-core/` | Встроенный язык SimInTech: построение модели скриптом, декларативный текст, правила среды, классы вне COM |
 | `simintech-langblock/` | Блок «Язык программирования»: шаблон и формат скрипта блока (порядок секций, порты, кодогенерация, чек-лист) |
@@ -49,6 +50,13 @@
 живых замеров, часть — из ответов технической поддержки вендора. В
 `verified_note` манифеста скилла сказано, что именно проверено, чем и когда, —
 поэтому «проверено» там всегда можно перепроверить, а не поверить.
+
+Знания Model IR опираются на спецификацию и код C1-C5 в
+[`simintech-code`](https://github.com/producedbysavant/simintech-code) и на
+M1-M3 в [`simintech-mcp`](https://github.com/producedbysavant/simintech-mcp):
+`load_model`, паспорт, запросы к графу, контракты и `build_and_verify`.
+Живой приёмки на Windows не было; статус и границы названы в
+`simintech-model-ir/manifest.yaml`.
 
 **Чего в скиллах нет намеренно:** имён свойств из
 [`blocks/`](https://github.com/producedbysavant/simintech-code/tree/main/blocks).

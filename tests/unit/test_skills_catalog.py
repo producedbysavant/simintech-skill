@@ -1416,9 +1416,32 @@ def test_skill_guide_uris_are_known():
         "simintech://guides/model-text",
         "simintech://guides/wire-geometry",
         "simintech://guides/block-sizing",
+        "simintech://guides/model-ir",
     }
     pattern = re.compile(r"simintech://guides/[a-z-]+")
     for skill in _skill_dirs():
         text = (skill / "SKILL.md").read_text(encoding="utf-8")
         found = set(pattern.findall(text))
         assert found <= known, f"{skill.name}: неизвестные guide-URI {found - known}"
+
+
+def test_model_ir_skill_names_core_tools_and_verdicts():
+    """Скилл Model IR называет инструменты, руководство и три вердикта.
+
+    Без этих имён агент не найдёт точку входа в полную модель, а слово
+    «partial» без вердиктов читается как синоним успеха.
+    """
+    skill = CATALOG / "simintech-model-ir"
+    text = (skill / "SKILL.md").read_text(encoding="utf-8")
+    manifest = yaml.safe_load(
+        (skill / "manifest.yaml").read_text(encoding="utf-8"))
+
+    core = {"load_model", "get_model_manifest", "query_model",
+            "build_and_verify"}
+    assert core <= set(manifest["requires"]["mcp_tools"])
+    for name in core:
+        assert name in text, f"в скилле нет {name!r}"
+    for verdict in ("`passed`", "`partial`", "`failed`"):
+        assert verdict in text, f"в скилле нет вердикта {verdict}"
+    assert "simintech://guides/model-ir" in text
+    assert "model_ref" in text

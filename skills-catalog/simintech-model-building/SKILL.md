@@ -8,8 +8,9 @@ description: Use when building or editing a SimInTech model through the MCP serv
 ## Поверхность MCP v2
 
 Видимое ядро: `doctor`, `create_project`, `open_project`, `build_model`,
-`inspect_model`, `simulate`, `format_model`, `read_output_file`, `help_text`.
-Полный каталог 64 инструментов доступен через `search_tools` и ресурс
+`build_and_verify`, `inspect_model`, `load_model`, `get_model_manifest`,
+`query_model`, `simulate`, `format_model`, `read_output_file`, `help_text`.
+Полный каталог 69 инструментов доступен через `search_tools` и ресурс
 `simintech://tools/<name>`; `SIMINTECH_MCP_DISCOVERY=all` возвращает все.
 
 Предпочтительный путь сборки:
@@ -17,6 +18,11 @@ description: Use when building or editing a SimInTech model through the MCP serv
 ```
 doctor → build_model(spec=ModelSpec(...)) → inspect_model → simulate
 ```
+
+Для анализа всей модели, паспорта, точных запросов к графу и проверки
+SystemSpec используйте скилл `simintech-model-ir`: `build_and_verify`
+компилирует спецификацию до COM, собирает модель и возвращает вердикт
+`passed`/`partial`/`failed`.
 
 `build_model` импортирует блоки и субмодели текстом, верхнеуровневые провода
 создаёт `connect` по фактическим портам, подгоняет размеры блоков (16 px на

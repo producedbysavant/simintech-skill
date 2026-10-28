@@ -1,0 +1,45 @@
+name: simintech-model-ir
+version: 0.1.0
+description: "Полная модель SimInTech вне контекста: load_model, model_ref, паспорт, точные запросы к графу, контракты и build_and_verify с вердиктом."
+requires:
+  mcp_tools:
+    - doctor
+    - load_model
+    - get_model_manifest
+    - query_model
+    - build_and_verify
+    - simulate
+  data:
+    - https://github.com/producedbysavant/simintech-code/blob/main/simintech_api/data/block_contracts.json
+source_of_truth:
+  # Спецификация Model IR: зачем полная модель вне контекста, C1-C5.
+  - https://github.com/producedbysavant/simintech-code/blob/main/docs/superpowers/specs/2026-10-28-model-ir.md
+  # Свод фактов: IR, текстовый и топологический источники, граф, паспорт,
+  # контракты и SystemSpec с провенансом.
+  - https://github.com/producedbysavant/simintech-code/blob/main/docs/knowledge/11-model-ir.md
+  # Компиляция SystemSpec и сверка фактической модели: вердикт и not_evaluated.
+  - https://github.com/producedbysavant/simintech-code/blob/main/simintech_api/model_ir/system_spec.py
+  - https://github.com/producedbysavant/simintech-code/blob/main/simintech_api/model_ir/verify.py
+  # Реестр контрактов и портовые модели fixed/nport/portnames/submodel/unknown.
+  - https://github.com/producedbysavant/simintech-code/blob/main/simintech_api/model_ir/contracts.py
+  # Граф: запросы, evidence, покрытие, unknown и truncated.
+  - https://github.com/producedbysavant/simintech-code/blob/main/simintech_api/model_ir/graph.py
+  # MCP-обёртка: model_ref, снимки, источники и query_model.
+  - https://github.com/producedbysavant/simintech-mcp/blob/main/simintech_mcp/tools/model_ir.py
+  - https://github.com/producedbysavant/simintech-mcp/blob/main/simintech_mcp/model_store.py
+  # build_and_verify и контрактная проверка.
+  - https://github.com/producedbysavant/simintech-mcp/blob/main/simintech_mcp/tools/system_spec.py
+  - https://github.com/producedbysavant/simintech-mcp/blob/main/simintech_mcp/contracts.py
+  # Поверхность инструментов и руководство Model IR в MCP.
+  - https://github.com/producedbysavant/simintech-mcp/blob/main/docs/tool-surface.md
+  - https://github.com/producedbysavant/simintech-mcp/blob/main/simintech_mcp/tool_docs.py
+verified: true
+verified_note: >
+  Сведено 2026-10-28 по влитым C1-C5 в simintech-code v0.18.0 (тег на
+  squash-коммите 992f3bb) и M1-M3 в simintech-mcp main 1032098. Семантика
+  model_ref, покрытия, запросов, контрактов и вердикта проверена unit-наборами
+  обоих репозиториев: 1433 passed в MCP, mypy, pyright strict, flake8 и
+  check_pins зелёные. Живой приёмки на Windows не было: unit-набор не
+  подтверждает поведение COM и снимка SaveProjectXML на поставке. Поля
+  contracts и signals из расширенного плана в M3 не входят; portnames без
+  подсказок ports честно даёт partial, а не passed.
