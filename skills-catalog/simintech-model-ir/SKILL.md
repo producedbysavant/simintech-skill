@@ -258,7 +258,7 @@ build_and_verify(spec={
   ],
   "wires": [
     {"src": "Step:out:0", "dst": "Gain:in:0"},
-    {"src": "Gain:out:1", "dst": "Graph:in:0"}
+    {"src": "Gain:out:0", "dst": "Graph:in:0"}
   ]
 })
 ```
