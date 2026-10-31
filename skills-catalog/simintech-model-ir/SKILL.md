@@ -1,6 +1,6 @@
 ---
 name: simintech-model-ir
-description: "Use when the whole SimInTech model must be understood without reading XML: load_model, model_ref snapshots, manifest, exact graph queries, block contracts and build_and_verify(SystemSpec) verdicts. Covers coverage, unknown and partial semantics."
+description: "Use when the whole SimInTech model must be understood without reading XML: load_model, model_ref snapshots, manifest, exact graph queries, functional influence, semantic coverage, block contracts and build_and_verify(SystemSpec) verdicts. Covers coverage, unknown and partial semantics."
 ---
 
 # Model IR: полная модель вне контекста
@@ -45,8 +45,10 @@ load_model(path="", sources=None, strict=False)
   `discrepancies`.
 
 Ответ содержит `model_ref`, `model_hash`, `content_hash`, `ir_schema`,
-`sources`, `source_name`, счётчики, покрытие, первые расхождения и подсказки.
-XML, скрипты и полные значения свойств не возвращаются.
+`sources`, `source_name`, счётчики, покрытие, первые расхождения, подсказки
+и компактную секцию `semantics`: объекты с поведением, утверждённые строки,
+зависимости, причины неизвестности и `pilot_scope`. XML, скрипты и полные
+значения свойств не возвращаются.
 
 ### model_ref
 
@@ -83,8 +85,9 @@ get_model_manifest(model_ref, budget_tokens=3000, focus="")
 
 Markdown-паспорт в бюджете 2000..5000 токенов. Разделы: `Header`, `Coverage`,
 `Structure`, `Classes`, `Signals`, `Hot nodes`, `Contracts`, `Discrepancies`,
-`Omitted`. `focus` оставляет выбранный раздел плюс заголовок и покрытие.
-`Omitted` называет, что не поместилось: это не пустой раздел.
+`Semantics` (если помещается в бюджет), `Omitted`. `focus` оставляет
+выбранный раздел плюс заголовок и покрытие. `Omitted` называет, что не
+поместилось: это не пустой раздел.
 
 Паспорт строится кодом. Не просите агента писать паспорт по прочитанному XML.
 
@@ -108,6 +111,8 @@ query_model(model_ref, query, arguments={...})
 | `validate_invariants` | `invariants` | инженерные инварианты |
 | `list_discrepancies` | `severity`, `code`, `limit` | расхождения источников |
 | `coverage` | нет | покрытие снимка |
+| `influence` | `target`, `max_depth`, `include`, `max_items` | какие входы действительно влияют на выход |
+| `semantic_coverage` | нет | семантическое покрытие с `by_class` и причинами |
 
 Ответ несёт `scope`, `model_hash`, `evidence`, `unknown` и `truncated`.
 `unknown` означает, что ссылка не разрешена, а не что связей нет.
@@ -118,6 +123,34 @@ query_model(model_ref, query, arguments={...})
 
 `compare_models` сравнивает структуру; геометрия включается только
 `include_geometry=True`. Для двух версий сначала сделайте два `load_model`.
+
+### Функциональная семантика
+
+`influence` отвечает, какие входы влияют на выход, а не какие объекты
+структурно достижимы. Аргументы: `target` (порт или объект), `max_depth`,
+`include`, `max_items`.
+
+- `hops` хранят `kind`, `condition`, `state` и `evidence` каждого перехода;
+  общий `kind` не подменяет типы.
+- `kind`: `unconditional`, `conditional`, `control`, `stateful`, `script`,
+  `unknown`. `control` идёт отдельным элементом и не смешивается с
+  выбранным значением.
+- `evidence.status`: `contract` только для измеренного отношения или
+  утверждённой строки; `preliminary` даёт `not_established`. `observed` в
+  `influence` не появляется.
+- `known_absences` - отдельный список, не `items`; отсутствие с
+  `claim`/`derived` выдаётся только из утверждённой строки, `measured` -
+  всегда.
+- объект с непустым скриптом остаётся `script/object_script`, даже если у
+  класса нет зависимостей; структурный путь не доказывает влияние.
+- внутренний `unknown` на границе субмодели понижает зависимость значения,
+  но не отдельную `control`: известен факт управления, не ветвь.
+
+`semantic_coverage` отдаёт полный словарь: `objects_with_behavior`,
+`objects_with_approved_behavior`, `objects_unknown` по причинам,
+`dependencies_known`, `known_absences_total`, `pilot_scope_counts` и
+`by_class`. Причины: `class_unknown`, `object_script`, `script_defined`,
+`external_submodel`, `behavior_unknown`, `unapproved`.
 
 ## 4. Контракты блоков
 
@@ -281,6 +314,11 @@ query_model(one["model_ref"], "compare_models",
 - не читать `.xprt` целиком и не пересказывать XML вручную;
 - не считать `unknown`, `partial` и `not_evaluated` пустым множеством или
   успехом;
+- не выдавать структурную достижимость за функциональное влияние;
+- не смешивать `control` с зависимостью передаваемого значения;
+- не считать `preliminary`-строку утверждённой;
+- не помещать `known_absences` в `items` и не выдавать `observed` из
+  `influence`;
 - не переиспользовать `model_ref` после правки проекта;
 - не ждать `model_ref` от `build_and_verify`;
 - не передавать в `SystemSpec` поля `contracts` и `signals`;
