@@ -1,6 +1,6 @@
 name: simintech-model-ir
-version: 0.1.0
-description: "Полная модель SimInTech вне контекста: load_model, model_ref, паспорт, точные запросы к графу, контракты и build_and_verify с вердиктом."
+version: 0.2.0
+description: "Полная модель SimInTech вне контекста: load_model, model_ref, паспорт, точные запросы к графу, функциональное влияние, семантическое покрытие, контракты и build_and_verify с вердиктом."
 requires:
   mcp_tools:
     - doctor
@@ -22,6 +22,10 @@ source_of_truth:
   - https://github.com/producedbysavant/simintech-code/blob/main/simintech_api/model_ir/verify.py
   # Реестр контрактов и портовые модели fixed/nport/portnames/submodel/unknown.
   - https://github.com/producedbysavant/simintech-code/blob/main/simintech_api/model_ir/contracts.py
+  # Функциональная семантика: influence, semantic_coverage, known_absences.
+  - https://github.com/producedbysavant/simintech-code/blob/main/simintech_api/model_ir/semantics.py
+  - https://github.com/producedbysavant/simintech-code/blob/main/docs/superpowers/specs/2026-10-30-functional-semantics-pilot.md
+  - https://github.com/producedbysavant/simintech-code/blob/main/docs/superpowers/plans/2026-10-30-functional-semantics-core.md
   # Граф: запросы, evidence, покрытие, unknown и truncated.
   - https://github.com/producedbysavant/simintech-code/blob/main/simintech_api/model_ir/graph.py
   # MCP-обёртка: model_ref, снимки, источники и query_model.
@@ -35,11 +39,13 @@ source_of_truth:
   - https://github.com/producedbysavant/simintech-mcp/blob/main/simintech_mcp/tool_docs.py
 verified: true
 verified_note: >
-  Сведено 2026-10-28 по влитым C1-C5 в simintech-code v0.18.0 (тег на
-  squash-коммите 992f3bb) и M1-M3 в simintech-mcp main 1032098. Семантика
-  model_ref, покрытия, запросов, контрактов и вердикта проверена unit-наборами
-  обоих репозиториев: 1433 passed в MCP, mypy, pyright strict, flake8 и
-  check_pins зелёные. Живой приёмки на Windows не было: unit-набор не
-  подтверждает поведение COM и снимка SaveProjectXML на поставке. Поля
-  contracts и signals из расширенного плана в M3 не входят; portnames без
-  подсказок ports честно даёт partial, а не passed.
+  Сведено 2026-10-31 по simintech-code core PR #98 (тег v0.19.1 после
+  merge) и simintech-mcp main после пина v0.19.1 (#230). Функциональная
+  семантика (контракты v2, influence, semantic_coverage, known_absences,
+  границы субмоделей), включая исправления script без зависимостей и
+  утверждённости known_absences, проверена unit-наборами simintech-code и
+  MCP, включая интеграционный test_semantic_queries на искусственной модели;
+  flake8, mypy (linux и win32), pyright strict, DLP и check_pins зелёные.
+  Живой приёмки на Windows и реальной модели не было: unit/интеграционные
+  тесты не подтверждают COM и SaveProjectXML на поставке. Строки
+  pilot_blocks.yaml остаются preliminary до проверки владельцем.
