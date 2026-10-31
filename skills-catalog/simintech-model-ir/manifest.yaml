@@ -39,14 +39,13 @@ source_of_truth:
   - https://github.com/producedbysavant/simintech-mcp/blob/main/simintech_mcp/tool_docs.py
 verified: true
 verified_note: >
-  Сведено 2026-10-31 по simintech-code main 669a890 (тег v0.19.0) и
-  simintech-mcp main 3ad7e5f. Функциональная семантика (контракты v2,
-  influence, semantic_coverage, known_absences, границы субмоделей)
-  проверена unit-наборами simintech-code и MCP, включая интеграционный
-  test_semantic_queries на искусственной модели; flake8, mypy (linux и
-  win32), pyright strict, DLP и check_pins зелёные. Живой приёмки на Windows
-  и реальной модели не было: unit/интеграционные тесты не подтверждают COM
-  и SaveProjectXML на поставке. Строки pilot_blocks.yaml остаются
-  preliminary до проверки владельцем. Пограничные исправления script без
-  зависимостей и утверждённости known_absences ведутся отдельной веткой и в
-  этот снимок не входят.
+  Сведено 2026-10-31 по simintech-code core PR #98 (тег v0.19.1 после
+  merge) и simintech-mcp main после пина v0.19.1 (#230). Функциональная
+  семантика (контракты v2, influence, semantic_coverage, known_absences,
+  границы субмоделей), включая исправления script без зависимостей и
+  утверждённости known_absences, проверена unit-наборами simintech-code и
+  MCP, включая интеграционный test_semantic_queries на искусственной модели;
+  flake8, mypy (linux и win32), pyright strict, DLP и check_pins зелёные.
+  Живой приёмки на Windows и реальной модели не было: unit/интеграционные
+  тесты не подтверждают COM и SaveProjectXML на поставке. Строки
+  pilot_blocks.yaml остаются preliminary до проверки владельцем.
