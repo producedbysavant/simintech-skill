@@ -1249,6 +1249,28 @@ LANGBLOCK_ANCHORS = (
 )
 
 
+def test_universal_workflow_skill_covers_formula():
+    """Скилл повторяет формулу MCP, а не пересказывает один инструмент."""
+    text = (CATALOG / "simintech-universal-workflow" / "SKILL.md").read_text(
+        encoding="utf-8")
+
+    for needle in (
+        "doctor",
+        "load_model",
+        "get_model_manifest",
+        "export_model_text",
+        "topology",
+        "build_and_verify",
+        "influence",
+        "semantic_coverage",
+        "structure_hash",
+        "content_hash",
+        "SaveProjectXML",
+        "unknown",
+    ):
+        assert needle in text
+
+
 def test_langblock_skill_keeps_its_rules():
     """Правила ЯП-блока остаются названными, а не только подразумеваемыми."""
     text = (CATALOG / "simintech-langblock" / "SKILL.md").read_text(
@@ -1417,6 +1439,7 @@ def test_skill_guide_uris_are_known():
         "simintech://guides/wire-geometry",
         "simintech://guides/block-sizing",
         "simintech://guides/model-ir",
+        "simintech://guides/workflow",
     }
     pattern = re.compile(r"simintech://guides/[a-z-]+")
     for skill in _skill_dirs():

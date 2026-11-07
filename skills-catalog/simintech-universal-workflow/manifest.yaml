@@ -1,0 +1,31 @@
+name: simintech-universal-workflow
+version: 0.1.0
+description: "Универсальный порядок работы с SimInTech MCP: карта источников, копия, выбор источника по вопросу, одно изменение и доказательство с хешами."
+requires:
+  mcp_tools:
+    - doctor
+    - load_model
+    - get_model_manifest
+    - query_model
+    - export_model_text
+    - inspect_model
+    - simulate
+    - read_output_file
+    - build_and_verify
+source_of_truth:
+  # Ресурс и инструкции MCP: канонический текст порядка.
+  - https://github.com/producedbysavant/simintech-mcp/blob/main/simintech_mcp/tool_docs.py
+  - https://github.com/producedbysavant/simintech-mcp/blob/main/simintech_mcp/app.py
+  # Обёртка Model IR и поверхность инструментов.
+  - https://github.com/producedbysavant/simintech-mcp/blob/main/simintech_mcp/tools/model_ir.py
+  - https://github.com/producedbysavant/simintech-mcp/blob/main/docs/tool-surface.md
+  # Факты о COM и Model IR, на которые опирается порядок.
+  - https://github.com/producedbysavant/simintech-code/blob/main/docs/reference/com_api_inventory.md
+  - https://github.com/producedbysavant/simintech-code/blob/main/docs/knowledge/11-model-ir.md
+  - https://github.com/producedbysavant/simintech-code/blob/main/docs/superpowers/specs/2026-10-30-functional-semantics-pilot.md
+verified: true
+verified_note: >
+  Процессный скилл: он не добавляет утверждений о поведении среды, а
+  фиксирует порядок работы с уже проверенными инструментами. Структура,
+  frontmatter и ссылки проверены unit-тестами каталога; живой приёмки не
+  требует.
