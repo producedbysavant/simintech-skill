@@ -11,6 +11,8 @@ source_of_truth:
   # Канонический текст правила размеров nport-блоков (MCP-сервер):
   # высота 16 px на вход, смена nport через set_block_param.
   - https://github.com/producedbysavant/simintech-mcp/blob/main/simintech_mcp/tool_docs.py
+  # Канонический текст ограничения ссылочных субмоделей (import_model_text).
+  - https://github.com/producedbysavant/simintech-mcp/blob/main/simintech_mcp/tools/model_text.py
   # Справка вендора по функциям, названным в скилле: createblock, секция
   # initialization, перечень функций, доступных только в графическом
   # контейнере (createprimitiv), и таблица типов getobjtypeid.
@@ -117,3 +119,6 @@ verified_note: >
   «Порт выхода» годен импортом текста (замеры 03.10 и 08.10.2026),
   запечённая геометрия проводов импорта (mcp#150) и правило
   «сохранили → переоткрыли» (mcp#148).
+  Замер 10.11.2026: ссылочная субмодель (filename=) в createmodel должна быть
+  одна и последней; записи после неё молча не создаются, две ссылки дают
+  not-compiled; встроенные subsystem работают.
